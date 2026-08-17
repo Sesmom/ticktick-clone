@@ -272,4 +272,4 @@ fun TodayRow(t:TaskM){
   }
  }
 }
-class MainActivity : ComponentActivity(){ override fun onCreate(savedInstanceState:Bundle?){ super.onCreate(savedInstanceState); window.statusBarColor = AndroidColor.parseColor("#F5F3FF"); WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true; setContent{ App() } } } }
+class MainActivity : ComponentActivity(){ override fun onCreate(savedInstanceState:Bundle?){ super.onCreate(savedInstanceState); window.statusBarColor = AndroidColor.parseColor("#F5F3FF"); WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true; setContent{ App() } } }
