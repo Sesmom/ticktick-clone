@@ -19,6 +19,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun App() {
     var tab by remember { mutableStateOf(0) }
@@ -27,10 +28,10 @@ fun App() {
     val tabs = listOf("Today","Calendar","Matrix","Habits","Pomo")
     MaterialTheme {
         Scaffold(
-            topBar = { SmallTopAppBar(title={Text(tabs[tab])}) },
+            topBar = { TopAppBar(title={Text(tabs[tab])}) },
             bottomBar = {
                 NavigationBar {
-                    tabs.forEachIndexed { i, t -> NavigationBarItem(selected=i==tab, onClick={tab=i}, label={Text(t)}, icon={Text("")}) }
+                    tabs.forEachIndexed { i, t -> NavigationBarItem(selected=i==tab, onClick={tab=i}, label={Text(t)}, icon={Text(if(i==0)"✓" else if(i==1)"📅" else "•")}) }
                 }
             }
         ) { p ->
@@ -49,7 +50,7 @@ fun App() {
                         Button(onClick={ if(input.isNotBlank()){ tasks=tasks+Task(tasks.size+10,input); input="" } }, modifier=Modifier.padding(start=8.dp)){ Text("Add") }
                     }
                 } else {
-                    Text("${tabs[tab]} screen - full UI will be built next iteration. Base is ready for GitHub build.")
+                    Text("${tabs[tab]} screen - full UI will be built next iteration. Base is ready for GitHub build.", modifier=Modifier.padding(top=20.dp))
                 }
             }
         }
