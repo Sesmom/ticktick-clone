@@ -51,18 +51,18 @@ fun App(){
             Column(Modifier.padding(pad).fillMaxSize().background(Color(0xFFF7F7FF)).padding(12.dp)){
                 when(tab){
                     0 -> {
-                        Text("Today • ${tasks.count{!it.done}} left", fontWeight=FontWeight.Bold, fontSize=18.sp)
+                        Text("Today • ${tasks.count{it.done==false}} left", fontWeight=FontWeight.Bold, fontSize=18.sp)
                         Spacer(Modifier.height(12.dp))
                         LazyColumn(Modifier.weight(1f)){
-                            items(tasks.filter{!it.done}){
-                                Card(Modifier.fillMaxWidth().padding(vertical=4.dp).clip(RoundedCornerShape(12.dp)).clickable{ tasks=tasks.map{x-> if(x.id==it.id) x.copy(done=true) else x} }, elevation=CardDefaults.cardElevation(2.dp)){
+                            items(tasks.filter{it.done==false}, key={it.id}){ taskItem ->
+                                Card(Modifier.fillMaxWidth().padding(vertical=4.dp).clip(RoundedCornerShape(12.dp)).clickable{ tasks=tasks.map{ x-> if(x.id==taskItem.id) x.copy(done=true) else x } }, elevation=CardDefaults.cardElevation(2.dp)){
                                     Row(Modifier.padding(12.dp), verticalAlignment=Alignment.CenterVertically){
-                                        Checkbox(checked=it.done, onCheckedChange={ tasks=tasks.map{x-> if(x.id==it.id) x.copy(done=!x.done) else x} })
+                                        Checkbox(checked=taskItem.done, onCheckedChange={ isChecked -> tasks=tasks.map{ x-> if(x.id==taskItem.id) x.copy(done=isChecked) else x } })
                                         Column(Modifier.weight(1f).padding(start=8.dp)){
-                                            Text(it.title, fontWeight=FontWeight.Medium)
-                                            if(it.habit!=null) Text(it.habit!!, fontSize=12.sp, color=Color(0xFF6D5BFF))
+                                            Text(taskItem.title, fontWeight=FontWeight.Medium)
+                                            if(taskItem.habit!=null) Text(taskItem.habit!!, fontSize=12.sp, color=Color(0xFF6D5BFF))
                                         }
-                                        Text(when(it.priority){2->"🔴";1->"🟡";else->"⚪"})
+                                        Text(when(taskItem.priority){2->"🔴";1->"🟡";else->"⚪"})
                                     }
                                 }
                             }
@@ -78,8 +78,7 @@ fun App(){
                         Spacer(Modifier.height(12.dp))
                         LazyRow{ items(listOf("Mon 12","Tue 13","Wed 14","Thu 15","Fri 16","Sat 17","Sun 18")){ d-> Card(Modifier.padding(4.dp).width(80.dp), colors=CardDefaults.cardColors(containerColor=Color.White)){ Column(Modifier.padding(12.dp), horizontalAlignment=Alignment.CenterHorizontally){ Text(d, fontSize=12.sp); Text("${tasks.size} tasks", fontSize=10.sp, color=Color.Gray) } } } }
                         Spacer(Modifier.height(12.dp))
-                        Text("Same as HTML calendar - month grid will go here. For now list view:")
-                        LazyColumn{ items(tasks){ Text("• ${it.title}", modifier=Modifier.padding(6.dp)) } }
+                        LazyColumn{ items(tasks){ t-> Text("• ${t.title}", modifier=Modifier.padding(6.dp)) } }
                     }
                     2 -> {
                         Text("Eisenhower Matrix", fontWeight=FontWeight.Bold, fontSize=18.sp)
@@ -88,13 +87,13 @@ fun App(){
                         Column(Modifier.weight(1f)){
                             Row(Modifier.weight(1f)){
                                 quads.take(2).forEachIndexed{ idx, q ->
-                                    Card(Modifier.weight(1f).fillMaxHeight().padding(4.dp), colors=CardDefaults.cardColors(containerColor=when(idx){0->Color(0xFFFFE0E0); else->Color(0xFFE0F0FF)})){ Column(Modifier.padding(8.dp)){ Text(q, fontWeight=FontWeight.Bold, fontSize=12.sp); Spacer(Modifier.height(4.dp)); tasks.filter{it.quadrant==idx}.forEach{ Text("• ${it.title}", fontSize=11.sp) } } }
+                                    Card(Modifier.weight(1f).fillMaxHeight().padding(4.dp), colors=CardDefaults.cardColors(containerColor=when(idx){0->Color(0xFFFFE0E0); else->Color(0xFFE0F0FF)})){ Column(Modifier.padding(8.dp)){ Text(q, fontWeight=FontWeight.Bold, fontSize=12.sp); tasks.filter{it.quadrant==idx}.forEach{ Text("• ${it.title}", fontSize=11.sp) } } }
                                 }
                             }
                             Row(Modifier.weight(1f)){
                                 quads.drop(2).forEachIndexed{ idx, q ->
                                     val realIdx = idx+2
-                                    Card(Modifier.weight(1f).fillMaxHeight().padding(4.dp), colors=CardDefaults.cardColors(containerColor=when(realIdx){2->Color(0xFFFFF5CC); else->Color(0xFFE8E8E8)})){ Column(Modifier.padding(8.dp)){ Text(q, fontWeight=FontWeight.Bold, fontSize=12.sp); Spacer(Modifier.height(4.dp)); tasks.filter{it.quadrant==realIdx}.forEach{ Text("• ${it.title}", fontSize=11.sp) } } }
+                                    Card(Modifier.weight(1f).fillMaxHeight().padding(4.dp), colors=CardDefaults.cardColors(containerColor=when(realIdx){2->Color(0xFFFFF5CC); else->Color(0xFFE8E8E8)})){ Column(Modifier.padding(8.dp)){ Text(q, fontWeight=FontWeight.Bold, fontSize=12.sp); tasks.filter{it.quadrant==realIdx}.forEach{ Text("• ${it.title}", fontSize=11.sp) } } }
                                 }
                             }
                         }
@@ -102,11 +101,9 @@ fun App(){
                     3 -> {
                         Text("Habit Tracker #work", fontWeight=FontWeight.Bold, fontSize=18.sp)
                         Spacer(Modifier.height(12.dp))
-                        val days = (1..30).toList()
-                        LazyRow{ items(days){ d-> Box(Modifier.padding(2.dp).size(22.dp).clip(RoundedCornerShape(4.dp)).background(if(d%3==0) Color(0xFF6D5BFF) else Color(0xFFE0E0E0))) } }
+                        LazyRow{ items((1..30).toList()){ d-> Box(Modifier.padding(2.dp).size(22.dp).clip(RoundedCornerShape(4.dp)).background(if(d%3==0) Color(0xFF6D5BFF) else Color(0xFFE0E0E0))) } }
                         Spacer(Modifier.height(16.dp))
                         tasks.filter{it.habit!=null}.forEach{ t-> Row(Modifier.fillMaxWidth().padding(vertical=6.dp), horizontalArrangement=Arrangement.SpaceBetween){ Text(t.title); Text(if(t.done)"✅" else "⬜") } }
-                        Text("This matches HTML GitHub-style habit grid", fontSize=12.sp, color=Color.Gray)
                     }
                     4 -> {
                         Column(Modifier.fillMaxSize(), horizontalAlignment=Alignment.CenterHorizontally, verticalArrangement=Arrangement.Center){
@@ -115,8 +112,6 @@ fun App(){
                             Card(Modifier.size(180.dp), shape=RoundedCornerShape(90.dp), colors=CardDefaults.cardColors(containerColor=Color(0xFF6D5BFF))){ Box(Modifier.fillMaxSize(), contentAlignment=Alignment.Center){ Text(String.format("%02d:%02d", pomoSec/60, pomoSec%60), color=Color.White, fontSize=32.sp, fontWeight=FontWeight.Bold) } }
                             Spacer(Modifier.height(20.dp))
                             Button(onClick={ pomoRunning =!pomoRunning }){ Text(if(pomoRunning)"Pause" else "Start 25:00") }
-                            Spacer(Modifier.height(12.dp))
-                            Text("Same ring timer as HTML mockup - logic next iteration")
                         }
                     }
                 }
