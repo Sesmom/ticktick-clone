@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Headset
-import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Icon
@@ -118,7 +118,7 @@ fun FocusScreen() {
             IconButton(
                 onClick = { },
                 modifier = Modifier.size(56.dp).clip(CircleShape).background(Color(0xFFF2F2F2))
-            ) { Icon(Icons.Default.MoreHoriz, contentDescription = "More") }
+            ) { Icon(Icons.Default.MoreVert, contentDescription = "More") }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -145,7 +145,7 @@ fun FocusScreen() {
             Box(
                 modifier = Modifier.size(40.dp).clip(CircleShape).background(Color(0xFF2A2A2A)),
                 contentAlignment = Alignment.Center
-            ) { Icon(Icons.Default.Headset, contentDescription = null, tint = Color.White) }
+            ) { Icon(Icons.Default.Info, contentDescription = null, tint = Color.White) }
 
             Spacer(modifier = Modifier.width(12.dp))
 
