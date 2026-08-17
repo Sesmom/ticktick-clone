@@ -211,7 +211,7 @@ fun App(){
        }
       }
      }
-     4 -> { Box(Modifier.padding(pad).fillMaxSize(), contentAlignment=Alignment.Center){ Text("Focus coming - send mockup") } }
+     4 -> { Box(Modifier.padding(pad).fillMaxSize()){ FocusScreen() } }
     }
    }
   }
