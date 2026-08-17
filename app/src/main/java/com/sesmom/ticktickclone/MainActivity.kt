@@ -2,6 +2,9 @@ package com.sesmom.ticktickclone
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import android.graphics.Color as AndroidColor
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -269,4 +272,4 @@ fun TodayRow(t:TaskM){
   }
  }
 }
-class MainActivity : ComponentActivity(){ override fun onCreate(savedInstanceState:Bundle?){ super.onCreate(savedInstanceState); setContent{ App() } } }
+class MainActivity : ComponentActivity(){ override fun onCreate(savedInstanceState:Bundle?){ super.onCreate(savedInstanceState); window.statusBarColor = AndroidColor.parseColor("#F5F3FF"); WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true; setContent{ App() } } } }
