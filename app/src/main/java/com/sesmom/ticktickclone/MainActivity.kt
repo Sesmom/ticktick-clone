@@ -2,6 +2,7 @@ package com.sesmom.ticktickclone
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import android.graphics.Color as AndroidColor
@@ -42,7 +43,7 @@ fun App(){
  var selectedDay by remember { mutableStateOf(15) }
  MaterialTheme{
   Box(Modifier.fillMaxSize().background(Color(0xFFF8F7FF))){
-   Scaffold(containerColor=Color.Transparent,
+   Scaffold(containerColor=Color.Transparent, contentWindowInsets=WindowInsets(0,0,0,0),
     bottomBar={
      Box(Modifier.fillMaxWidth().padding(16.dp).padding(bottom=8.dp), contentAlignment=Alignment.Center){
       Card(Modifier.clip(RoundedCornerShape(32.dp)), colors=CardDefaults.cardColors(containerColor=Color(0xFF121212))){
