@@ -64,8 +64,8 @@ fun App(){
    ){ pad ->
     when(tab){
      0 -> { // TODAY - RESTORED 100%
-      LazyColumn(Modifier.padding(pad).fillMaxSize().padding(horizontal=16.dp), verticalArrangement=Arrangement.spacedBy(16.dp)){
-       item{
+      Column(Modifier.padding(pad).fillMaxSize()){
+       Column(Modifier.padding(horizontal=16.dp)){
         Spacer(Modifier.height(16.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.SpaceBetween, verticalAlignment=Alignment.Top){
          Column{
@@ -78,6 +78,7 @@ fun App(){
         Spacer(Modifier.height(14.dp))
         Box(Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)).background(Color(0xFFEDE8FF))){ Box(Modifier.fillMaxWidth(0.14f).fillMaxHeight().clip(RoundedCornerShape(3.dp)).background(purple)) }
        }
+       LazyColumn(Modifier.padding(horizontal=16.dp), verticalArrangement=Arrangement.spacedBy(16.dp)){
        item{
         Row(verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(8.dp).clip(CircleShape).background(Color(0xFFFF4D4D))); Spacer(Modifier.width(8.dp)); Text("OVERDUE • 2", color=Color(0xFFFF6B6B), fontWeight=FontWeight.Bold, fontSize=12.sp, letterSpacing=1.sp) }
         Spacer(Modifier.height(10.dp))
@@ -112,6 +113,7 @@ fun App(){
         }
         Spacer(Modifier.height(100.dp))
        }
+      }
       }
      }
      1 -> { // CAL - RESTORED 100%
@@ -273,4 +275,4 @@ fun TodayRow(t:TaskM){
   }
  }
 }
-class MainActivity : ComponentActivity(){ override fun onCreate(savedInstanceState:Bundle?){ super.onCreate(savedInstanceState); window.statusBarColor = AndroidColor.parseColor("#F5F3FF"); WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true; setContent{ App() } } }
+class MainActivity : ComponentActivity(){ override fun onCreate(savedInstanceState:Bundle?){ super.onCreate(savedInstanceState); window.statusBarColor = AndroidColor.parseColor("#F8F7FF"); WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true; setContent{ App() } } }
