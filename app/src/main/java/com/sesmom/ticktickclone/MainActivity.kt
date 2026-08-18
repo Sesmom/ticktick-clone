@@ -25,6 +25,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.random.Random
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 
 data class Sub(val title:String, val done:Boolean)
 data class TaskM(val id:Int, val title:String, val tag:String, val tagColor:Color, val tagText:Color, val time:String, val pri:Int, val done:Boolean=false, val subs:List<Sub> = emptyList(), val quad:Int=0)
@@ -33,14 +36,12 @@ data class TaskM(val id:Int, val title:String, val tag:String, val tagColor:Colo
 fun App(){
  var tab by remember { mutableStateOf(3) }
  val purple = Color(0xFF6D5BFF)
- val tasks = listOf(
-  TaskM(1,"Finalize Q3 roadmap deck","#work", Color(0xFFEEE9FF), Color(0xFF6D5BFF),"09:00", 0),
-  TaskM(2,"Submit expense report","#finance", Color(0xFFE0F5FF), Color(0xFF0099CC),"Yesterday", 1),
-  TaskM(3,"Morning review & standup notes","#work", Color(0xFFEEE9FF), Color(0xFF6D5BFF),"08:30", 0, subs=listOf(Sub("Update Figma handoff",true), Sub("Prep talking points",false))),
-  TaskM(4,"Design system audit - components","#design", Color(0xFFFFE4F0), Color(0xFFCC4D8C),"14:00", 1),
-  TaskM(5,"Read 30 pages - Deep Work","#learning", Color(0xFFFFF3CC), Color(0xFFB8860B),"21:00", 0),
-  TaskM(6,"Grocery run & meal prep","#personal", Color(0xFFD9FFEE), Color(0xFF2ECC71),"18:00", 0, done=true, quad=2)
- )
+ val taskViewModel: TaskViewModel = viewModel()
+ val dbTasks by taskViewModel.tasks.collectAsState()
+ val tasks = dbTasks.mapIndexed { idx, dbTask ->
+  val subs = if(idx==2) listOf(Sub("Update Figma handoff",true), Sub("Prep talking points",false)) else emptyList()
+  dbTask.toTaskM().copy(subs = subs)
+ }
  var selectedDay by remember { mutableStateOf(15) }
  MaterialTheme{
   Box(Modifier.fillMaxSize().background(Color(0xFFF8F7FF))){
@@ -90,14 +91,14 @@ fun App(){
        item{
         Row(verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(8.dp).clip(CircleShape).background(Color(0xFFFF4D4D))); Spacer(Modifier.width(8.dp)); Text("OVERDUE • 2", color=Color(0xFFFF6B6B), fontWeight=FontWeight.Bold, fontSize=12.sp, letterSpacing=1.sp) }
         Spacer(Modifier.height(10.dp))
-        Card(shape=RoundedCornerShape(20.dp), colors=CardDefaults.cardColors(containerColor=Color(0xFFFFF3F2))){ Column(Modifier.padding(16.dp), verticalArrangement=Arrangement.spacedBy(18.dp)){ OverdueRow(tasks[0]); OverdueRow(tasks[1]) } }
+        Card(shape=RoundedCornerShape(20.dp), colors=CardDefaults.cardColors(containerColor=Color(0xFFFFF3F2))){ Column(Modifier.padding(16.dp), verticalArrangement=Arrangement.spacedBy(18.dp)){ OverdueRow(tasks[0], onToggle={ taskViewModel.toggleDoneById(it) }); OverdueRow(tasks[1], onToggle={ taskViewModel.toggleDoneById(it) }) } }
        }
        item{
         Row(verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(8.dp).clip(CircleShape).background(purple)); Spacer(Modifier.width(8.dp)); Text("TODAY • 4", color=purple, fontWeight=FontWeight.Bold, fontSize=12.sp, letterSpacing=1.sp) }
         Spacer(Modifier.height(10.dp))
         Card(shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=Color.White), elevation=CardDefaults.cardElevation(3.dp)){
          Column(Modifier.padding(16.dp), verticalArrangement=Arrangement.spacedBy(22.dp)){
-          TodayRow(tasks[2]); TodayRow(tasks[3]); TodayRow(tasks[4])
+          TodayRow(tasks[2], onToggle={ taskViewModel.toggleDoneById(it) }); TodayRow(tasks[3], onToggle={ taskViewModel.toggleDoneById(it) }); TodayRow(tasks[4], onToggle={ taskViewModel.toggleDoneById(it) })
           Column{
            Row(Modifier.fillMaxWidth(), verticalAlignment=Alignment.CenterVertically){
             Box(Modifier.size(28.dp).clip(CircleShape).background(purple), contentAlignment=Alignment.Center){ Text("✓", color=Color.White, fontSize=14.sp, fontWeight=FontWeight.Bold) }
@@ -145,7 +146,7 @@ fun App(){
         Row(verticalAlignment=Alignment.CenterVertically){ Text("🕒", fontSize=12.sp); Spacer(Modifier.width(6.dp)); Text("JULY $selectedDay • 3 TASKS", fontSize=12.sp, color=Color(0xFF8A8A8A), fontWeight=FontWeight.Bold) }
         Spacer(Modifier.height(12.dp))
         Card(shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=Color.White), elevation=CardDefaults.cardElevation(3.dp)){
-         Column(Modifier.padding(16.dp), verticalArrangement=Arrangement.spacedBy(24.dp)){ TodayRow(tasks[2]); TodayRow(tasks[3]) }
+         Column(Modifier.padding(16.dp), verticalArrangement=Arrangement.spacedBy(24.dp)){ TodayRow(tasks[2], onToggle={ taskViewModel.toggleDoneById(it) }); TodayRow(tasks[3], onToggle={ taskViewModel.toggleDoneById(it) }) }
         }
         Spacer(Modifier.height(100.dp))
        }
@@ -248,9 +249,9 @@ fun HabitRow(emoji:String, title:String, days:String, done:Boolean){
  }
 }
 @Composable
-fun OverdueRow(t:TaskM){
+fun OverdueRow(t:TaskM, onToggle:(Int)->Unit = {}){
  Row(Modifier.fillMaxWidth(), verticalAlignment=Alignment.Top){
-  Box(Modifier.size(28.dp).clip(CircleShape).border(2.dp, Color(0xFFE0E0E0), CircleShape).background(Color.White))
+  Box(Modifier.size(28.dp).clip(CircleShape).border(2.dp, Color(0xFFE0E0E0), CircleShape).background(Color.White).clickable{ onToggle(t.id) })
   Spacer(Modifier.width(12.dp))
   Column(Modifier.weight(1f)){
    Row(verticalAlignment=Alignment.CenterVertically){ Text(t.title, fontWeight=FontWeight.Medium, fontSize=14.sp); Spacer(Modifier.width(8.dp)); Box(Modifier.clip(RoundedCornerShape(8.dp)).background(t.tagColor).padding(horizontal=8.dp, vertical=4.dp)){ Text(t.tag, fontSize=11.sp, color=t.tagText) } }
@@ -259,10 +260,10 @@ fun OverdueRow(t:TaskM){
  }
 }
 @Composable
-fun TodayRow(t:TaskM){
+fun TodayRow(t:TaskM, onToggle:(Int)->Unit = {}){
  Column{
   Row(Modifier.fillMaxWidth(), verticalAlignment=Alignment.Top){
-   Box(Modifier.size(28.dp).clip(CircleShape).border(2.dp, Color(0xFFE0E0E0), CircleShape).background(Color.White))
+   Box(Modifier.size(28.dp).clip(CircleShape).border(2.dp, Color(0xFFE0E0E0), CircleShape).background(if(t.done) Color(0xFF6D5BFF) else Color.White).clickable{ onToggle(t.id) })
    Spacer(Modifier.width(12.dp))
    Column(Modifier.weight(1f)){
     Row(verticalAlignment=Alignment.CenterVertically){ Text(t.title, fontWeight=FontWeight.Medium, fontSize=14.sp, modifier=Modifier.weight(1f, false)); Spacer(Modifier.width(8.dp)); Box(Modifier.clip(RoundedCornerShape(8.dp)).background(t.tagColor).padding(horizontal=8.dp, vertical=4.dp)){ Text(t.tag, fontSize=11.sp, color=t.tagText) } }
