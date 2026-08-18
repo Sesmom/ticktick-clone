@@ -46,14 +46,14 @@ fun App(){
    Scaffold(containerColor=Color.Transparent, contentWindowInsets=WindowInsets(0,0,0,0),
     bottomBar={
      Box(Modifier.fillMaxWidth().padding(16.dp).padding(bottom=8.dp), contentAlignment=Alignment.Center){
-      Card(Modifier.clip(RoundedCornerShape(32.dp)), colors=CardDefaults.cardColors(containerColor=Color(0xFF121212))){
+      Card(Modifier.clip(RoundedCornerShape(32.dp)), colors=CardDefaults.cardColors(containerColor=Color.White), elevation=CardDefaults.cardElevation(6.dp)){
        Row(Modifier.padding(horizontal=8.dp, vertical=6.dp)){
         listOf("Today","Cal","Matrix","Habits","Focus").forEachIndexed{ i,name ->
          val sel=i==tab
-         Box(Modifier.clip(RoundedCornerShape(24.dp)).background(if(sel) Color.White else Color.Transparent).clickable{ tab=i }.padding(horizontal=18.dp, vertical=10.dp), contentAlignment=Alignment.Center){
+         Box(Modifier.clip(RoundedCornerShape(24.dp)).background(if(sel) Color(0xFF6C5CE7) else Color.Transparent).clickable{ tab=i }.padding(horizontal=18.dp, vertical=10.dp), contentAlignment=Alignment.Center){
           Column(horizontalAlignment=Alignment.CenterHorizontally){
-           Text(when(name){ "Today"->"☰" "Cal"->"📅" "Matrix"->"⊞" "Habits"->"↻" else->"⏱" }, fontSize=14.sp, color=if(sel) Color.Black else Color.White.copy(0.5f))
-           Text(name, fontSize=10.sp, color=if(sel) Color.Black else Color.White.copy(0.5f), fontWeight=if(sel) FontWeight.Bold else FontWeight.Normal)
+           Text(when(name){ "Today"->"☰" "Cal"->"📅" "Matrix"->"⊞" "Habits"->"↻" else->"⏱" }, fontSize=14.sp, color=if(sel) Color.White else Color(0xFF9E9E9E))
+           Text(name, fontSize=10.sp, color=if(sel) Color.White else Color(0xFF9E9E9E), fontWeight=if(sel) FontWeight.Bold else FontWeight.Normal)
           }
          }
         }
@@ -103,12 +103,9 @@ fun App(){
          }
         }
         Spacer(Modifier.height(24.dp))
-        Card(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)), colors=CardDefaults.cardColors(containerColor=Color.White), elevation=CardDefaults.cardElevation(6.dp)){
-         Row(Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment=Alignment.CenterVertically){
-          Box(Modifier.size(32.dp).clip(CircleShape).border(1.5.dp, Color(0xFFE0E0E0), CircleShape))
-          Spacer(Modifier.width(12.dp))
-          Text("Add a task, e.g. Review PR #42", color=Color(0xFF9E9E9E), fontSize=13.sp, modifier=Modifier.weight(1f))
-          Button(onClick={}, shape=RoundedCornerShape(14.dp), colors=ButtonDefaults.buttonColors(containerColor=purple), contentPadding=PaddingValues(horizontal=18.dp, vertical=10.dp)){ Text("+ Add", fontSize=13.sp, fontWeight=FontWeight.Bold) }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.End){
+         Box(Modifier.size(56.dp).clip(CircleShape).background(purple).clickable{ }, contentAlignment=Alignment.Center){
+          Text("+", color=Color.White, fontSize=28.sp, fontWeight=FontWeight.Bold)
          }
         }
         Spacer(Modifier.height(100.dp))
