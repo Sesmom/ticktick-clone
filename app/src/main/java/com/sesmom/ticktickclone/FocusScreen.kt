@@ -35,7 +35,7 @@ fun FocusScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(Color(0xFFF8F7FF))
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(20.dp),
