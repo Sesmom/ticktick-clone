@@ -18,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -46,7 +47,7 @@ fun App(){
    Scaffold(containerColor=Color.Transparent, contentWindowInsets=WindowInsets(0,0,0,0),
     floatingActionButton={
      if(tab==0){
-      Box(Modifier.padding(bottom=24.dp).size(56.dp).clip(CircleShape).background(Color(0xFF6C5CE7)).clickable{ }, contentAlignment=Alignment.Center){
+      Box(Modifier.padding(bottom=4.dp).size(56.dp).shadow(8.dp, CircleShape).clip(CircleShape).background(Color(0xFF6C5CE7)).clickable{ }, contentAlignment=Alignment.Center){
        Text("+", color=Color.White, fontSize=28.sp, fontWeight=FontWeight.Bold)
       }
      }
@@ -54,13 +55,13 @@ fun App(){
     bottomBar={
      Box(Modifier.fillMaxWidth().padding(16.dp).padding(bottom=8.dp), contentAlignment=Alignment.Center){
       Card(Modifier.clip(RoundedCornerShape(32.dp)), colors=CardDefaults.cardColors(containerColor=Color.White), elevation=CardDefaults.cardElevation(6.dp)){
-       Row(Modifier.padding(horizontal=8.dp, vertical=6.dp)){
+       Row(Modifier.padding(horizontal=10.dp, vertical=12.dp)){
         listOf("Today","Cal","Matrix","Habits","Focus").forEachIndexed{ i,name ->
          val sel=i==tab
-         Box(Modifier.clip(RoundedCornerShape(24.dp)).background(if(sel) Color(0xFF6C5CE7) else Color.Transparent).clickable{ tab=i }.padding(horizontal=18.dp, vertical=10.dp), contentAlignment=Alignment.Center){
+         Box(Modifier.clip(RoundedCornerShape(24.dp)).background(if(sel) Color(0xFF6C5CE7) else Color.Transparent).clickable{ tab=i }.padding(horizontal=20.dp, vertical=14.dp), contentAlignment=Alignment.Center){
           Column(horizontalAlignment=Alignment.CenterHorizontally){
-           Text(when(name){ "Today"->"☰" "Cal"->"📅" "Matrix"->"⊞" "Habits"->"↻" else->"⏱" }, fontSize=14.sp, color=if(sel) Color.White else Color(0xFF9E9E9E))
-           Text(name, fontSize=10.sp, color=if(sel) Color.White else Color(0xFF9E9E9E), fontWeight=if(sel) FontWeight.Bold else FontWeight.Normal)
+           Text(when(name){ "Today"->"☰" "Cal"->"📅" "Matrix"->"⊞" "Habits"->"↻" else->"⏱" }, fontSize=17.sp, color=if(sel) Color.White else Color(0xFF9E9E9E))
+           Text(name, fontSize=11.sp, color=if(sel) Color.White else Color(0xFF9E9E9E), fontWeight=if(sel) FontWeight.Bold else FontWeight.Normal)
           }
          }
         }
