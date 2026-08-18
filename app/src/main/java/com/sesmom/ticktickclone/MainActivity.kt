@@ -44,6 +44,11 @@ fun App(){
  MaterialTheme{
   Box(Modifier.fillMaxSize().background(Color(0xFFF8F7FF))){
    Scaffold(containerColor=Color.Transparent, contentWindowInsets=WindowInsets(0,0,0,0),
+    floatingActionButton={
+     Box(Modifier.padding(bottom=88.dp).size(56.dp).clip(CircleShape).background(Color(0xFF6C5CE7)).clickable{ }, contentAlignment=Alignment.Center){
+      Text("+", color=Color.White, fontSize=28.sp, fontWeight=FontWeight.Bold)
+     }
+    },
     bottomBar={
      Box(Modifier.fillMaxWidth().padding(16.dp).padding(bottom=8.dp), contentAlignment=Alignment.Center){
       Card(Modifier.clip(RoundedCornerShape(32.dp)), colors=CardDefaults.cardColors(containerColor=Color.White), elevation=CardDefaults.cardElevation(6.dp)){
@@ -100,12 +105,6 @@ fun App(){
            Spacer(Modifier.height(6.dp))
            Row(Modifier.padding(start=40.dp), verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(6.dp).clip(CircleShape).background(Color(0xFFD0D0D0))); Spacer(Modifier.width(8.dp)); Text("18:00", fontSize=12.sp, color=Color(0xFFB0B0B0)) }
           }
-         }
-        }
-        Spacer(Modifier.height(24.dp))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.End){
-         Box(Modifier.size(56.dp).clip(CircleShape).background(purple).clickable{ }, contentAlignment=Alignment.Center){
-          Text("+", color=Color.White, fontSize=28.sp, fontWeight=FontWeight.Bold)
          }
         }
         Spacer(Modifier.height(100.dp))
