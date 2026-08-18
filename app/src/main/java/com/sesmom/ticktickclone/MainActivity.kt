@@ -46,7 +46,7 @@ fun App(){
    Scaffold(containerColor=Color.Transparent, contentWindowInsets=WindowInsets(0,0,0,0),
     floatingActionButton={
      if(tab==0){
-      Box(Modifier.padding(bottom=88.dp).size(56.dp).clip(CircleShape).background(Color(0xFF6C5CE7)).clickable{ }, contentAlignment=Alignment.Center){
+      Box(Modifier.padding(bottom=24.dp).size(56.dp).clip(CircleShape).background(Color(0xFF6C5CE7)).clickable{ }, contentAlignment=Alignment.Center){
        Text("+", color=Color.White, fontSize=28.sp, fontWeight=FontWeight.Bold)
       }
      }
