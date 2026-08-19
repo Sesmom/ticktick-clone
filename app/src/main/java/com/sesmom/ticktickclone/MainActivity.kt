@@ -86,6 +86,16 @@ fun App(){
         }
         Spacer(Modifier.height(14.dp))
         Box(Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)).background(Color(0xFFEDE8FF))){ Box(Modifier.fillMaxWidth(0.14f).fillMaxHeight().clip(RoundedCornerShape(3.dp)).background(purple)) }
+        Spacer(Modifier.height(16.dp))
+        var boardTab by remember { mutableStateOf(0) }
+        Row(Modifier.padding(horizontal=16.dp), horizontalArrangement=Arrangement.spacedBy(8.dp)){
+         listOf("To Do","In Progress","Done").forEachIndexed{ i,label ->
+          val sel = i==boardTab
+          Box(Modifier.clip(RoundedCornerShape(20.dp)).background(if(sel) Color(0xFFEDE8FF) else Color.Transparent).clickable{ boardTab=i }.padding(horizontal=16.dp, vertical=8.dp)){
+           Text(label, fontSize=14.sp, color=if(sel) purple else Color(0xFF8A8A8A), fontWeight=if(sel) FontWeight.Bold else FontWeight.Normal)
+          }
+         }
+        }
        }
        LazyColumn(Modifier.padding(horizontal=16.dp), verticalArrangement=Arrangement.spacedBy(16.dp)){
        item{
