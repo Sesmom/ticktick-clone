@@ -38,6 +38,7 @@ fun App(){
  var tab by remember { mutableStateOf(3) }
  val purple = Color(0xFF6D5BFF)
  val taskViewModel: TaskViewModel = viewModel()
+ var showAddDialog by remember { mutableStateOf(false) }
  val dbTasks by taskViewModel.tasks.collectAsState()
  val tasks = dbTasks.mapIndexed { idx, dbTask ->
   val subs = if(idx==2) listOf(Sub("Update Figma handoff",true), Sub("Prep talking points",false)) else emptyList()
@@ -49,7 +50,7 @@ fun App(){
    Scaffold(containerColor=Color.Transparent, contentWindowInsets=WindowInsets(0,0,0,0),
     floatingActionButton={
      if(tab==0){
-      Box(Modifier.offset(y=20.dp).size(56.dp).shadow(8.dp, CircleShape).clip(CircleShape).background(Color(0xFF6C5CE7)).clickable{ }, contentAlignment=Alignment.Center){
+      Box(Modifier.offset(y=20.dp).size(56.dp).shadow(8.dp, CircleShape).clip(CircleShape).background(Color(0xFF6C5CE7)).clickable{ showAddDialog=true }, contentAlignment=Alignment.Center){
        Text("+", color=Color.White, fontSize=28.sp, fontWeight=FontWeight.Bold)
       }
      }
@@ -222,6 +223,9 @@ fun App(){
     }
    }
   }
+ }
+ if(showAddDialog){
+  AddTaskDialog(onDismiss={ showAddDialog=false }, onAdd={ title,tag,time -> taskViewModel.addTask(title,tag,time) })
  }
 }
 
