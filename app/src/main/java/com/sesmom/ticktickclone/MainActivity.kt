@@ -88,14 +88,14 @@ fun App(){
         Spacer(Modifier.height(14.dp))
         Box(Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)).background(Color(0xFFEDE8FF))){ Box(Modifier.fillMaxWidth(0.14f).fillMaxHeight().clip(RoundedCornerShape(3.dp)).background(purple)) }
        }
-       LazyColumn(Modifier.padding(horizontal=16.dp), verticalArrangement=Arrangement.spacedBy(16.dp)){
+       LazyColumn(Modifier.padding(horizontal=16.dp).padding(top=8.dp), verticalArrangement=Arrangement.spacedBy(20.dp)){
        item{
-        Row(verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(8.dp).clip(CircleShape).background(Color(0xFFFF4D4D))); Spacer(Modifier.width(8.dp)); Text("OVERDUE • 2", color=Color(0xFFFF6B6B), fontWeight=FontWeight.Bold, fontSize=12.sp, letterSpacing=1.sp) }
+        Row(verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(8.dp).clip(CircleShape).background(Color(0xFFFF4D4D))); Spacer(Modifier.width(8.dp)); Text("OVERDUE • 2", color=Color(0xFFFF6B6B), fontWeight=FontWeight.Black, fontSize=14.sp, letterSpacing=1.2.sp) }
         Spacer(Modifier.height(10.dp))
         Card(shape=RoundedCornerShape(20.dp), colors=CardDefaults.cardColors(containerColor=Color(0xFFFFF3F2))){ Column(Modifier.padding(16.dp), verticalArrangement=Arrangement.spacedBy(18.dp)){ OverdueRow(tasks[0], onToggle={ taskViewModel.toggleDoneById(it) }); OverdueRow(tasks[1], onToggle={ taskViewModel.toggleDoneById(it) }) } }
        }
        item{
-        Row(verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(8.dp).clip(CircleShape).background(purple)); Spacer(Modifier.width(8.dp)); Text("TODAY • 4", color=purple, fontWeight=FontWeight.Bold, fontSize=12.sp, letterSpacing=1.sp) }
+        Row(verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(8.dp).clip(CircleShape).background(purple)); Spacer(Modifier.width(8.dp)); Text("TODAY • 4", color=purple, fontWeight=FontWeight.Black, fontSize=14.sp, letterSpacing=1.2.sp) }
         Spacer(Modifier.height(10.dp))
         Card(shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=Color.White), elevation=CardDefaults.cardElevation(3.dp)){
          Column(Modifier.padding(16.dp), verticalArrangement=Arrangement.spacedBy(22.dp)){
