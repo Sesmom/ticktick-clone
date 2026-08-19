@@ -29,5 +29,6 @@ fun Task.toTaskM(): TaskM = TaskM(
     time = time,
     pri = 0,
     done = done,
-    quad = quadrant
+    quad = quadrant,
+    desc = desc
 )

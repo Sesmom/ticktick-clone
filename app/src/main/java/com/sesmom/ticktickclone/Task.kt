@@ -11,5 +11,6 @@ data class Task(
     val time: String = "",
     val done: Boolean = false,
     val overdue: Boolean = false,
-    val quadrant: Int = 0
+    val quadrant: Int = 0,
+    val desc: String = ""
 )
