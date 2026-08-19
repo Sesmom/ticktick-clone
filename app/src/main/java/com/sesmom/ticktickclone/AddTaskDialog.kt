@@ -1,100 +1,112 @@
 package com.sesmom.ticktickclone
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Flag
+import androidx.compose.material.icons.filled.Label
+import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String) -> Unit) {
     val purple = Color(0xFF6C5CE7)
     var title by remember { mutableStateOf("") }
-    var selectedTag by remember { mutableStateOf("#work") }
-    var time by remember { mutableStateOf("") }
-    val tags = listOf("#work", "#finance", "#design", "#learning", "#personal")
+    var desc by remember { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    Dialog(onDismissRequest = onDismiss) {
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(24.dp))
-                .background(Color.White)
-                .padding(20.dp)
-        ) {
-            Column {
-                Text("New Task", fontSize = 20.sp, fontWeight = FontWeight.Black)
-                Spacer(modifier = Modifier.height(16.dp))
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+        keyboard?.show()
+    }
 
-                OutlinedTextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    placeholder = { Text("What do you need to do?") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
+    fun submit() {
+        if (title.isNotBlank()) {
+            onAdd(title, "#work", "No time")
+            onDismiss()
+        }
+    }
 
-                Spacer(modifier = Modifier.height(12.dp))
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = Color.White
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 20.dp).padding(bottom = 20.dp)) {
+            TextField(
+                value = title,
+                onValueChange = { title = it },
+                placeholder = { Text("What would you like to do?", color = Color(0xFFB0B0B0), fontSize = 17.sp) },
+                modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent
+                ),
+                textStyle = TextStyle(fontSize = 17.sp)
+            )
 
-                OutlinedTextField(
-                    value = time,
-                    onValueChange = { time = it },
-                    placeholder = { Text("Time (e.g. 14:00)") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
+            TextField(
+                value = desc,
+                onValueChange = { desc = it },
+                placeholder = { Text("Description", color = Color(0xFFB0B0B0), fontSize = 14.sp) },
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent
+                ),
+                textStyle = TextStyle(fontSize = 14.sp)
+            )
 
-                Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-                Text("Tag", fontSize = 13.sp, color = Color(0xFF8A8A8A))
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    tags.forEach { tag ->
-                        val sel = tag == selectedTag
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(if (sel) purple else Color(0xFFF0F0F0))
-                                .padding(horizontal = 12.dp, vertical = 6.dp)
-                        ) {
-                            Text(
-                                tag,
-                                fontSize = 12.sp,
-                                color = if (sel) Color.White else Color(0xFF8A8A8A)
-                            )
-                        }
-                    }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                    Icon(Icons.Default.CalendarToday, contentDescription = "Date", tint = Color(0xFF9A9A9A))
+                    Icon(Icons.Default.Flag, contentDescription = "Priority", tint = Color(0xFF9A9A9A))
+                    Icon(Icons.Default.Label, contentDescription = "Tag", tint = Color(0xFF9A9A9A))
+                    Icon(Icons.Default.MoreHoriz, contentDescription = "More", tint = Color(0xFF9A9A9A))
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(if (title.isNotBlank()) purple else Color(0xFFE0E0E0))
+                        .clickable { submit() },
+                    contentAlignment = Alignment.Center
                 ) {
-                    TextButton(onClick = onDismiss) {
-                        Text("Cancel", color = Color(0xFF8A8A8A))
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(
-                        onClick = {
-                            if (title.isNotBlank()) {
-                                onAdd(title, selectedTag, time.ifBlank { "No time" })
-                                onDismiss()
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = purple),
-                        shape = RoundedCornerShape(14.dp)
-                    ) {
-                        Text("Add Task", fontWeight = FontWeight.Bold)
-                    }
+                    Icon(
+                        Icons.Default.Send,
+                        contentDescription = "Add task",
+                        tint = Color.White,
+                        modifier = Modifier.size(18.dp)
+                    )
                 }
             }
         }
