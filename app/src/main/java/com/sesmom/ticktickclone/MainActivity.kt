@@ -114,6 +114,7 @@ fun App(){
         Spacer(Modifier.height(100.dp))
        }
       }
+      }
      }
      1 -> { // CAL - RESTORED 100%
       LazyColumn(Modifier.padding(pad).fillMaxSize().padding(horizontal=16.dp), verticalArrangement=Arrangement.spacedBy(16.dp)){
