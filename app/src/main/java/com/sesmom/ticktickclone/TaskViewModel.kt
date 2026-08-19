@@ -25,4 +25,11 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
             dao.insert(Task(title = title, tag = tag, time = time))
         }
     }
+
+    fun toggleDoneById(id: Int) {
+        viewModelScope.launch {
+            val task = tasks.value.find { it.id == id } ?: return@launch
+            dao.update(task.copy(done = !task.done))
+        }
+    }
 }
