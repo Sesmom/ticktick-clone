@@ -5,10 +5,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.Flag
-import androidx.compose.material.icons.filled.Label
-import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -87,10 +87,10 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String) -> Unit
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                    Icon(Icons.Default.CalendarToday, contentDescription = "Date", tint = Color(0xFF9A9A9A))
-                    Icon(Icons.Default.Flag, contentDescription = "Priority", tint = Color(0xFF9A9A9A))
-                    Icon(Icons.Default.Label, contentDescription = "Tag", tint = Color(0xFF9A9A9A))
-                    Icon(Icons.Default.MoreHoriz, contentDescription = "More", tint = Color(0xFF9A9A9A))
+                    Icon(Icons.Default.DateRange, contentDescription = "Date", tint = Color(0xFF9A9A9A))
+                    Icon(Icons.Default.Star, contentDescription = "Priority", tint = Color(0xFF9A9A9A))
+                    Icon(Icons.Default.Info, contentDescription = "Tag", tint = Color(0xFF9A9A9A))
+                    Icon(Icons.Default.MoreVert, contentDescription = "More", tint = Color(0xFF9A9A9A))
                 }
 
                 Box(
