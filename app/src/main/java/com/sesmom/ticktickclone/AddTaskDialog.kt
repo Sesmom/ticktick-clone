@@ -2,6 +2,8 @@ package com.sesmom.ticktickclone
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -62,7 +64,7 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String) -> Unit
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
                     .background(Color.White)
-                    .clickable(enabled = false) {}
+                    .pointerInput(Unit) { detectTapGestures {} }
             ) {
                 Column(modifier = Modifier.padding(horizontal = 20.dp).padding(top = 20.dp, bottom = 24.dp)) {
                     TextField(
