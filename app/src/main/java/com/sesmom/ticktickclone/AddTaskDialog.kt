@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -29,6 +30,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String) -> Unit) {
@@ -37,8 +41,12 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String)
     var desc by remember { mutableStateOf("") }
     var selectedTag by remember { mutableStateOf("#work") }
     var showTagPicker by remember { mutableStateOf(false) }
+    var showNewTagInput by remember { mutableStateOf(false) }
+    var newTagText by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
-    val tags = listOf("#work", "#finance", "#design", "#learning", "#personal")
+
+    val categoryViewModel: CategoryViewModel = viewModel()
+    val categories by categoryViewModel.categories.collectAsState()
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -101,17 +109,76 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String)
 
                     if (showTagPicker) {
                         Spacer(modifier = Modifier.height(8.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            tags.forEach { tag ->
-                                val sel = tag == selectedTag
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                items(categories.size) { i ->
+                                    val cat = categories[i]
+                                    val sel = cat.name == selectedTag
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(16.dp))
+                                            .background(if (sel) purple else Color(0xFFF0F0F0))
+                                            .clickable { selectedTag = cat.name; showTagPicker = false }
+                                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                                    ) {
+                                        Text(cat.name, fontSize = 12.sp, color = if (sel) Color.White else Color(0xFF8A8A8A))
+                                    }
+                                }
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(16.dp))
+                                            .background(Color(0xFFF0F0F0))
+                                            .clickable { showNewTagInput = true }
+                                            .padding(horizontal = 12.dp, vertical = 6.dp)
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(Icons.Default.Add, contentDescription = "New category", tint = Color(0xFF8A8A8A), modifier = Modifier.size(14.dp))
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            Text("New", fontSize = 12.sp, color = Color(0xFF8A8A8A))
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (showNewTagInput) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                TextField(
+                                    value = newTagText,
+                                    onValueChange = { newTagText = it },
+                                    placeholder = { Text("Category name", fontSize = 13.sp, color = Color(0xFFB0B0B0)) },
+                                    modifier = Modifier.weight(1f),
+                                    colors = TextFieldDefaults.colors(
+                                        unfocusedContainerColor = Color(0xFFF7F7F7),
+                                        focusedContainerColor = Color(0xFFF7F7F7),
+                                        unfocusedIndicatorColor = Color.Transparent,
+                                        focusedIndicatorColor = Color.Transparent
+                                    ),
+                                    textStyle = TextStyle(fontSize = 13.sp),
+                                    singleLine = true
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
                                 Box(
                                     modifier = Modifier
-                                        .clip(RoundedCornerShape(16.dp))
-                                        .background(if (sel) purple else Color(0xFFF0F0F0))
-                                        .clickable { selectedTag = tag; showTagPicker = false }
-                                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(purple)
+                                        .clickable {
+                                            if (newTagText.isNotBlank()) {
+                                                categoryViewModel.addCategory(newTagText)
+                                                selectedTag = if (newTagText.startsWith("#")) newTagText else "#$newTagText"
+                                                newTagText = ""
+                                                showNewTagInput = false
+                                                showTagPicker = false
+                                            }
+                                        }
+                                        .padding(horizontal = 14.dp, vertical = 10.dp)
                                 ) {
-                                    Text(tag, fontSize = 12.sp, color = if (sel) Color.White else Color(0xFF8A8A8A))
+                                    Text("Add", color = Color.White, fontSize = 13.sp)
                                 }
                             }
                         }
@@ -130,7 +197,7 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String)
                             Box(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(8.dp))
-                                    .clickable { showTagPicker = !showTagPicker }
+                                    .clickable { showTagPicker = !showTagPicker; showNewTagInput = false }
                             ) {
                                 Icon(Icons.Default.Info, contentDescription = "Tag", tint = if (showTagPicker) purple else Color(0xFF9A9A9A))
                             }

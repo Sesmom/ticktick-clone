@@ -9,9 +9,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Task::class], version = 2, exportSchema = false)
+@Database(entities = [Task::class, Category::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
+    abstract fun categoryDao(): CategoryDao
 
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null
@@ -34,6 +35,13 @@ abstract class AppDatabase : RoomDatabase() {
                             dao.insert(Task(title = "Design system audit - components", tag = "#design", time = "14:00", desc = "Check button, input, and card components for consistency"))
                             dao.insert(Task(title = "Read 30 pages - Deep Work", tag = "#learning", time = "21:00", desc = "Continue the chapter on focus and deep work habits"))
                             dao.insert(Task(title = "Grocery run & meal prep", tag = "#personal", time = "18:00", done = true, desc = "Pick up ingredients for the week and prep Sunday dinner"))
+
+                            val catDao = getInstance(context).categoryDao()
+                            catDao.insert(Category(name = "#work", bgColorHex = 0xFFEEE9FFL, textColorHex = 0xFF6D5BFFL))
+                            catDao.insert(Category(name = "#finance", bgColorHex = 0xFFE0F5FFL, textColorHex = 0xFF0099CCL))
+                            catDao.insert(Category(name = "#design", bgColorHex = 0xFFFFE4F0L, textColorHex = 0xFFCC4D8CL))
+                            catDao.insert(Category(name = "#learning", bgColorHex = 0xFFFFF3CCL, textColorHex = 0xFFB8860BL))
+                            catDao.insert(Category(name = "#personal", bgColorHex = 0xFFD9FFEEL, textColorHex = 0xFF2ECC71L))
                         }
                     }
                 }).build()
