@@ -217,7 +217,7 @@ fun App(){
   }
  }
  if(showAddDialog){
-  AddTaskDialog(onDismiss={ showAddDialog=false }, onAdd={ title,tag,time -> taskViewModel.addTask(title,tag,time) })
+  AddTaskDialog(onDismiss={ showAddDialog=false }, onAdd={ title,tag,time,desc -> taskViewModel.addTask(title,tag,time,desc) })
  }
 }
 

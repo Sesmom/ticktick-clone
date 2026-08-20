@@ -3,7 +3,6 @@ package com.sesmom.ticktickclone
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,11 +31,14 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
 @Composable
-fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String) -> Unit) {
+fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String) -> Unit) {
     val purple = Color(0xFF6C5CE7)
     var title by remember { mutableStateOf("") }
     var desc by remember { mutableStateOf("") }
+    var selectedTag by remember { mutableStateOf("#work") }
+    var showTagPicker by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
+    val tags = listOf("#work", "#finance", "#design", "#learning", "#personal")
 
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
@@ -43,7 +46,7 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String) -> Unit
 
     fun submit() {
         if (title.isNotBlank()) {
-            onAdd(title, "#work", "No time")
+            onAdd(title, selectedTag, "No time", desc)
             onDismiss()
         }
     }
@@ -96,6 +99,24 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String) -> Unit
                         textStyle = TextStyle(fontSize = 14.sp)
                     )
 
+                    if (showTagPicker) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            tags.forEach { tag ->
+                                val sel = tag == selectedTag
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .background(if (sel) purple else Color(0xFFF0F0F0))
+                                        .clickable { selectedTag = tag; showTagPicker = false }
+                                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                                ) {
+                                    Text(tag, fontSize = 12.sp, color = if (sel) Color.White else Color(0xFF8A8A8A))
+                                }
+                            }
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Row(
@@ -106,7 +127,13 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String) -> Unit
                         Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                             Icon(Icons.Default.DateRange, contentDescription = "Date", tint = Color(0xFF9A9A9A))
                             Icon(Icons.Default.Star, contentDescription = "Priority", tint = Color(0xFF9A9A9A))
-                            Icon(Icons.Default.Info, contentDescription = "Tag", tint = Color(0xFF9A9A9A))
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable { showTagPicker = !showTagPicker }
+                            ) {
+                                Icon(Icons.Default.Info, contentDescription = "Tag", tint = if (showTagPicker) purple else Color(0xFF9A9A9A))
+                            }
                             Icon(Icons.Default.MoreVert, contentDescription = "More", tint = Color(0xFF9A9A9A))
                         }
 
