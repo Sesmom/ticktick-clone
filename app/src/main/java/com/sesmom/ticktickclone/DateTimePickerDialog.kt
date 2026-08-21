@@ -9,7 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
@@ -208,7 +208,7 @@ fun DateTimePickerDialog(onDismiss: () -> Unit, onConfirm: (PickedSchedule) -> U
                     Spacer(modifier = Modifier.height(20.dp))
 
                     Column(modifier = Modifier.padding(horizontal = 20.dp).clip(RoundedCornerShape(16.dp)).background(Color.White)) {
-                        ScheduleRow("Time", "None", Icons.Default.AccessTime)
+                        ScheduleRow("Time", "None", Icons.Default.DateRange)
                         ScheduleRow("Reminder", "None", Icons.Default.Notifications)
                         ScheduleRow("Repeat", "None", Icons.Default.Refresh)
                     }
