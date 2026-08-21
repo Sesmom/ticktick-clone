@@ -21,6 +21,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -35,6 +37,8 @@ data class PickedSchedule(val label: String, val timeLabel: String)
 fun DateTimePickerDialog(onDismiss: () -> Unit, onConfirm: (PickedSchedule) -> Unit) {
     val purple = Color(0xFF6C5CE7)
     var tab by remember { mutableStateOf(0) } // 0 = Date, 1 = Duration
+    val density = LocalDensity.current
+    var dateHeightPx by remember { mutableStateOf(0) }
 
     val cal = remember { Calendar.getInstance() }
     val today = remember { Calendar.getInstance() }
@@ -85,11 +89,18 @@ fun DateTimePickerDialog(onDismiss: () -> Unit, onConfirm: (PickedSchedule) -> U
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
+                .heightIn(min = if (dateHeightPx > 0) with(density) { dateHeightPx.toDp() } else 0.dp)
                 .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
                 .background(Color(0xFFF8F7FF))
                 .clickable(enabled = false) {}
         ) {
-            Column(modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)) {
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 24.dp)
+                .onGloballyPositioned { coordinates ->
+                    if (tab == 0) dateHeightPx = coordinates.size.height
+                }
+            ) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Row(
