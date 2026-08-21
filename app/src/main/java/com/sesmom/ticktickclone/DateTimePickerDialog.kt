@@ -81,13 +81,13 @@ fun DateTimePickerDialog(onDismiss: () -> Unit, onConfirm: (PickedSchedule) -> U
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.88f)
+                .wrapContentHeight()
                 .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
                 .background(Color(0xFFF8F7FF))
                 .clickable(enabled = false) {}
         ) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                Spacer(modifier = Modifier.height(20.dp))
+            Column(modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)) {
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
