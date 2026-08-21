@@ -33,8 +33,6 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.ui.platform.LocalContext
-import java.util.Calendar
 
 @Composable
 fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String) -> Unit) {
@@ -46,8 +44,8 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String)
     var showNewTagInput by remember { mutableStateOf(false) }
     var newTagText by remember { mutableStateOf("") }
     var pickedDateTime by remember { mutableStateOf("") }
+    var showDatePicker by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
-    val context = LocalContext.current
 
     val categoryViewModel: CategoryViewModel = viewModel()
     val categories by categoryViewModel.categories.collectAsState()
@@ -64,27 +62,7 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String)
     }
 
     fun openDateTimePicker() {
-        val cal = Calendar.getInstance()
-        android.app.DatePickerDialog(
-            context,
-            { _, year, month, day ->
-                android.app.TimePickerDialog(
-                    context,
-                    { _, hour, minute ->
-                        val hh = String.format("%02d", hour)
-                        val mm = String.format("%02d", minute)
-                        val months = listOf("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
-                        pickedDateTime = "${months[month]} $day, $hh:$mm"
-                    },
-                    cal.get(Calendar.HOUR_OF_DAY),
-                    cal.get(Calendar.MINUTE),
-                    true
-                ).show()
-            },
-            cal.get(Calendar.YEAR),
-            cal.get(Calendar.MONTH),
-            cal.get(Calendar.DAY_OF_MONTH)
-        ).show()
+        showDatePicker = true
     }
 
     Dialog(
@@ -269,5 +247,12 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String)
                 }
             }
         }
+    }
+
+    if (showDatePicker) {
+        DateTimePickerDialog(
+            onDismiss = { showDatePicker = false },
+            onConfirm = { schedule -> pickedDateTime = schedule.timeLabel }
+        )
     }
 }
