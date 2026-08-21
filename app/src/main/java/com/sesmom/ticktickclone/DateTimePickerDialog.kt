@@ -9,6 +9,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.KeyboardArrowRight
@@ -82,6 +85,7 @@ fun DateTimePickerDialog(onDismiss: () -> Unit, onConfirm: (PickedSchedule) -> U
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
+                .heightIn(min = 680.dp)
                 .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
                 .background(Color(0xFFF8F7FF))
                 .clickable(enabled = false) {}
@@ -121,15 +125,15 @@ fun DateTimePickerDialog(onDismiss: () -> Unit, onConfirm: (PickedSchedule) -> U
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        QuickPick("Today", Icons.Default.DateRange) { pickQuick(0) }
-                        QuickPick("Tomorrow", Icons.Default.KeyboardArrowUp) { pickQuick(1) }
-                        QuickPick("Next Monday", Icons.Default.DateRange) {
+                        QuickPickCustom2("Today", { CalendarBadgeIcon("${today.get(Calendar.DAY_OF_MONTH)}", purple) }) { pickQuick(0) }
+                        QuickPickCustom2("Tomorrow", { SunriseIcon(purple) }) { pickQuick(1) }
+                        QuickPickCustom2("Next Monday", { CalendarBadgeIcon("MO", purple) }) {
                             val c = Calendar.getInstance()
                             var added = 0
                             do { c.add(Calendar.DAY_OF_MONTH, 1); added++ } while (c.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY)
                             pickQuick(added)
                         }
-                        QuickPick("This\nMorning", Icons.Default.KeyboardArrowUp) { pickQuick(0) }
+                        QuickPickCustom2("This\nMorning", { SunriseIcon(purple, fullSun = true) }) { pickQuick(0) }
                     }
 
                     Spacer(modifier = Modifier.height(28.dp))
@@ -190,7 +194,7 @@ fun DateTimePickerDialog(onDismiss: () -> Unit, onConfirm: (PickedSchedule) -> U
                                                     "$dayNum",
                                                     fontSize = 15.sp,
                                                     color = if (isSel) Color.White else if (isToday) purple else Color.Black,
-                                                    fontWeight = if (isSel || isToday) FontWeight.Bold else FontWeight.Normal
+                                                    fontWeight = FontWeight.Bold
                                                 )
                                             }
                                         }
@@ -204,9 +208,9 @@ fun DateTimePickerDialog(onDismiss: () -> Unit, onConfirm: (PickedSchedule) -> U
                     Spacer(modifier = Modifier.height(20.dp))
 
                     Column(modifier = Modifier.padding(horizontal = 20.dp).clip(RoundedCornerShape(16.dp)).background(Color.White)) {
-                        ScheduleRow("Time", "None")
-                        ScheduleRow("Reminder", "None")
-                        ScheduleRow("Repeat", "None")
+                        ScheduleRow("Time", "None", Icons.Default.AccessTime)
+                        ScheduleRow("Reminder", "None", Icons.Default.Notifications)
+                        ScheduleRow("Repeat", "None", Icons.Default.Refresh)
                     }
                 } else {
                     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
@@ -242,8 +246,8 @@ fun DateTimePickerDialog(onDismiss: () -> Unit, onConfirm: (PickedSchedule) -> U
                         Spacer(modifier = Modifier.height(12.dp))
 
                         Column(modifier = Modifier.clip(RoundedCornerShape(16.dp)).background(Color.White)) {
-                            ScheduleRow("Reminder", "On time")
-                            ScheduleRow("Repeat", "None")
+                            ScheduleRow("Reminder", "On time", Icons.Default.Notifications)
+                            ScheduleRow("Repeat", "None", Icons.Default.Refresh)
                         }
                     }
                 }
@@ -254,8 +258,7 @@ fun DateTimePickerDialog(onDismiss: () -> Unit, onConfirm: (PickedSchedule) -> U
 }
 
 @Composable
-fun QuickPick(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
-    val purple = Color(0xFF6C5CE7)
+fun QuickPickCustom2(label: String, iconContent: @Composable () -> Unit, onClick: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable(onClick = onClick).width(72.dp)) {
         Box(
             modifier = Modifier
@@ -264,7 +267,7 @@ fun QuickPick(label: String, icon: androidx.compose.ui.graphics.vector.ImageVect
                 .background(Color(0xFFEEE9FF)),
             contentAlignment = Alignment.Center
         ) {
-            Icon(icon, contentDescription = label, tint = purple, modifier = Modifier.size(24.dp))
+            iconContent()
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text(label, fontSize = 12.sp, color = Color(0xFF505050), textAlign = androidx.compose.ui.text.style.TextAlign.Center, lineHeight = 14.sp)
@@ -272,13 +275,17 @@ fun QuickPick(label: String, icon: androidx.compose.ui.graphics.vector.ImageVect
 }
 
 @Composable
-fun ScheduleRow(label: String, value: String) {
+fun ScheduleRow(label: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(label, fontSize = 15.sp)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, contentDescription = label, tint = Color(0xFF6C5CE7), modifier = Modifier.size(20.dp))
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(label, fontSize = 15.sp)
+        }
         Text(value, fontSize = 15.sp, color = Color(0xFFB0B0B0))
     }
 }
