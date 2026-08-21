@@ -85,6 +85,7 @@ fun DateTimePickerDialog(onDismiss: () -> Unit, onConfirm: (PickedSchedule) -> U
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
+                .heightIn(min = 720.dp)
                 .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
                 .background(Color(0xFFF8F7FF))
                 .clickable(enabled = false) {}
