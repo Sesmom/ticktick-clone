@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -67,11 +68,25 @@ fun DateTimePickerDialog(onDismiss: () -> Unit, onConfirm: (PickedSchedule) -> U
 
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)
     ) {
-        Box(modifier = Modifier.fillMaxSize().background(Color(0xFFF8F7FF))) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.4f))
+                .clickable(onClick = onDismiss),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.88f)
+                .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                .background(Color(0xFFF8F7FF))
+                .clickable(enabled = false) {}
+        ) {
             Column(modifier = Modifier.fillMaxSize()) {
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
@@ -105,15 +120,15 @@ fun DateTimePickerDialog(onDismiss: () -> Unit, onConfirm: (PickedSchedule) -> U
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        QuickPick("Today") { pickQuick(0) }
-                        QuickPick("Tomorrow") { pickQuick(1) }
-                        QuickPick("Next Monday") {
+                        QuickPick("Today", Icons.Default.DateRange) { pickQuick(0) }
+                        QuickPick("Tomorrow", Icons.Default.KeyboardArrowUp) { pickQuick(1) }
+                        QuickPick("Next Monday", Icons.Default.DateRange) {
                             val c = Calendar.getInstance()
                             var added = 0
                             do { c.add(Calendar.DAY_OF_MONTH, 1); added++ } while (c.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY)
                             pickQuick(added)
                         }
-                        QuickPick("This\nMorning") { pickQuick(0) }
+                        QuickPick("This\nMorning", Icons.Default.KeyboardArrowUp) { pickQuick(0) }
                     }
 
                     Spacer(modifier = Modifier.height(28.dp))
@@ -233,11 +248,12 @@ fun DateTimePickerDialog(onDismiss: () -> Unit, onConfirm: (PickedSchedule) -> U
                 }
             }
         }
+        }
     }
 }
 
 @Composable
-fun QuickPick(label: String, onClick: () -> Unit) {
+fun QuickPick(label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
     val purple = Color(0xFF6C5CE7)
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.clickable(onClick = onClick).width(72.dp)) {
         Box(
@@ -247,7 +263,7 @@ fun QuickPick(label: String, onClick: () -> Unit) {
                 .background(Color(0xFFEEE9FF)),
             contentAlignment = Alignment.Center
         ) {
-            Text(label.take(2), fontSize = 12.sp, color = purple, fontWeight = FontWeight.Bold)
+            Icon(icon, contentDescription = label, tint = purple, modifier = Modifier.size(24.dp))
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text(label, fontSize = 12.sp, color = Color(0xFF505050), textAlign = androidx.compose.ui.text.style.TextAlign.Center, lineHeight = 14.sp)
