@@ -123,23 +123,6 @@ fun DateTimePickerDialog(onDismiss: () -> Unit, onConfirm: (PickedSchedule) -> U
                 if (tab == 0) {
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        QuickPickCustom2("Today", { CalendarBadgeIcon("${today.get(Calendar.DAY_OF_MONTH)}", purple) }) { pickQuick(0) }
-                        QuickPickCustom2("Tomorrow", { SunriseIcon(purple) }) { pickQuick(1) }
-                        QuickPickCustom2("Next Monday", { CalendarBadgeIcon("MO", purple) }) {
-                            val c = Calendar.getInstance()
-                            var added = 0
-                            do { c.add(Calendar.DAY_OF_MONTH, 1); added++ } while (c.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY)
-                            pickQuick(added)
-                        }
-                        QuickPickCustom2("This\nMorning", { SunriseIcon(purple, fullSun = true) }) { pickQuick(0) }
-                    }
-
-                    Spacer(modifier = Modifier.height(28.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
