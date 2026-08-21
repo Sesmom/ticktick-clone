@@ -85,7 +85,6 @@ fun DateTimePickerDialog(onDismiss: () -> Unit, onConfirm: (PickedSchedule) -> U
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .heightIn(min = 680.dp)
                 .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
                 .background(Color(0xFFF8F7FF))
                 .clickable(enabled = false) {}
@@ -150,7 +149,7 @@ fun DateTimePickerDialog(onDismiss: () -> Unit, onConfirm: (PickedSchedule) -> U
 
                     val leading = firstWeekday(viewMonth, viewYear)
                     val totalDays = daysInMonth(viewMonth, viewYear)
-                    val rows = ((leading + totalDays) / 7) + 1
+                    val rows = 6
 
                     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                         for (r in 0 until rows) {
