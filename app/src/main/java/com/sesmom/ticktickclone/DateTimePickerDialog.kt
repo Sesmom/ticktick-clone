@@ -21,7 +21,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -36,8 +36,8 @@ data class PickedSchedule(val label: String, val timeLabel: String)
 @Composable
 fun DateTimePickerDialog(onDismiss: () -> Unit, onConfirm: (PickedSchedule) -> Unit) {
     val purple = Color(0xFF6C5CE7)
-    var tab by remember { mutableStateOf(0) } // 0 = Date, 1 = Duration
     val density = LocalDensity.current
+    var tab by remember { mutableStateOf(0) } // 0 = Date, 1 = Duration
     var dateHeightPx by remember { mutableStateOf(0) }
 
     val cal = remember { Calendar.getInstance() }
@@ -74,6 +74,124 @@ fun DateTimePickerDialog(onDismiss: () -> Unit, onConfirm: (PickedSchedule) -> U
         viewYear = selectedYear
     }
 
+    // Header row (Close / Date-Duration tabs / Confirm) — identical for both tabs.
+    val headerRow: @Composable () -> Unit = {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(Icons.Default.Close, contentDescription = "Close", modifier = Modifier.clickable(onClick = onDismiss))
+
+            Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Date", fontSize = 17.sp, color = if (tab == 0) purple else Color(0xFF9A9A9A), fontWeight = if (tab == 0) FontWeight.Bold else FontWeight.Normal, modifier = Modifier.clickable { tab = 0 })
+                    if (tab == 0) Box(Modifier.padding(top = 4.dp).width(28.dp).height(2.dp).background(purple))
+                }
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Duration", fontSize = 17.sp, color = if (tab == 1) purple else Color(0xFF9A9A9A), fontWeight = if (tab == 1) FontWeight.Bold else FontWeight.Normal, modifier = Modifier.clickable { tab = 1 })
+                    if (tab == 1) Box(Modifier.padding(top = 4.dp).width(50.dp).height(2.dp).background(purple))
+                }
+            }
+
+            Icon(Icons.Default.Check, contentDescription = "Confirm", tint = Color.Black, modifier = Modifier.clickable {
+                val label = "${shortMonths[selectedMonth]} $selectedDay"
+                onConfirm(PickedSchedule(label, "$label, 08:00"))
+                onDismiss()
+            })
+        }
+    }
+
+    // Date-tab-only content (month nav, calendar grid, schedule rows) — reused for both the
+    // real render and the invisible measurer below, so they always match exactly.
+    val dateOnlyContent: @Composable () -> Unit = {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(monthNames[viewMonth], fontSize = 20.sp, fontWeight = FontWeight.Black)
+            Row {
+                Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "Prev", modifier = Modifier.clickable {
+                    if (viewMonth == 0) { viewMonth = 11; viewYear -= 1 } else viewMonth -= 1
+                })
+                Spacer(modifier = Modifier.width(16.dp))
+                Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Next", modifier = Modifier.clickable {
+                    if (viewMonth == 11) { viewMonth = 0; viewYear += 1 } else viewMonth += 1
+                })
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+            listOf("Mon","Tue","Wed","Thu","Fri","Sat","Sun").forEach {
+                Text(it, fontSize = 12.sp, color = Color(0xFFAAAAAA), modifier = Modifier.width(40.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        val leading = firstWeekday(viewMonth, viewYear)
+        val totalDays = daysInMonth(viewMonth, viewYear)
+        val rows = 6
+
+        Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+            for (r in 0 until rows) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    for (c in 0..6) {
+                        val dayNum = r * 7 + c - leading + 1
+                        Box(modifier = Modifier.width(40.dp).height(40.dp), contentAlignment = Alignment.Center) {
+                            if (dayNum in 1..totalDays) {
+                                val isSel = dayNum == selectedDay && viewMonth == selectedMonth && viewYear == selectedYear
+                                val isToday = dayNum == today.get(Calendar.DAY_OF_MONTH) && viewMonth == today.get(Calendar.MONTH) && viewYear == today.get(Calendar.YEAR)
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(if (isSel) purple else Color.Transparent)
+                                        .clickable {
+                                            selectedDay = dayNum
+                                            selectedMonth = viewMonth
+                                            selectedYear = viewYear
+                                        },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        "$dayNum",
+                                        fontSize = 15.sp,
+                                        color = if (isSel) Color.White else if (isToday) purple else Color.Black,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Column(modifier = Modifier.padding(horizontal = 20.dp).clip(RoundedCornerShape(16.dp)).background(Color.White)) {
+            ScheduleRow("Time", "None", Icons.Default.DateRange)
+            ScheduleRow("Reminder", "None", Icons.Default.Notifications)
+            ScheduleRow("Repeat", "None", Icons.Default.Refresh)
+        }
+    }
+
+    // Full replica of the Date-tab sheet content, used only to measure its height —
+    // never placed/drawn, so it stays invisible regardless of which tab is showing.
+    val dateHeightMeasurer: @Composable () -> Unit = {
+        Column(modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)) {
+            Spacer(modifier = Modifier.height(16.dp))
+            headerRow()
+            Spacer(modifier = Modifier.height(20.dp))
+            dateOnlyContent()
+        }
+    }
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)
@@ -89,122 +207,28 @@ fun DateTimePickerDialog(onDismiss: () -> Unit, onConfirm: (PickedSchedule) -> U
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .heightIn(min = if (dateHeightPx > 0) with(density) { dateHeightPx.toDp() } else 0.dp)
+                .heightIn(min = with(density) { dateHeightPx.toDp() })
                 .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
                 .background(Color(0xFFF8F7FF))
                 .clickable(enabled = false) {}
         ) {
-            Column(modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 24.dp)
-                .onGloballyPositioned { coordinates ->
-                    if (tab == 0) dateHeightPx = coordinates.size.height
-                }
-            ) {
+            // Invisible measurer: always measures the Date tab's full height so the sheet
+            // never resizes when switching to Duration, no matter which tab is active.
+            Layout(content = dateHeightMeasurer) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                dateHeightPx = placeable.height
+                layout(0, 0) {}
+            }
+
+            Column(modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)) {
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Default.Close, contentDescription = "Close", modifier = Modifier.clickable(onClick = onDismiss))
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("Date", fontSize = 17.sp, color = if (tab == 0) purple else Color(0xFF9A9A9A), fontWeight = if (tab == 0) FontWeight.Bold else FontWeight.Normal, modifier = Modifier.clickable { tab = 0 })
-                            if (tab == 0) Box(Modifier.padding(top = 4.dp).width(28.dp).height(2.dp).background(purple))
-                        }
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text("Duration", fontSize = 17.sp, color = if (tab == 1) purple else Color(0xFF9A9A9A), fontWeight = if (tab == 1) FontWeight.Bold else FontWeight.Normal, modifier = Modifier.clickable { tab = 1 })
-                            if (tab == 1) Box(Modifier.padding(top = 4.dp).width(50.dp).height(2.dp).background(purple))
-                        }
-                    }
-
-                    Icon(Icons.Default.Check, contentDescription = "Confirm", tint = Color.Black, modifier = Modifier.clickable {
-                        val label = "${shortMonths[selectedMonth]} $selectedDay"
-                        onConfirm(PickedSchedule(label, "$label, 08:00"))
-                        onDismiss()
-                    })
-                }
+                headerRow()
 
                 Spacer(modifier = Modifier.height(20.dp))
 
                 if (tab == 0) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(monthNames[viewMonth], fontSize = 20.sp, fontWeight = FontWeight.Black)
-                        Row {
-                            Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "Prev", modifier = Modifier.clickable {
-                                if (viewMonth == 0) { viewMonth = 11; viewYear -= 1 } else viewMonth -= 1
-                            })
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Next", modifier = Modifier.clickable {
-                                if (viewMonth == 11) { viewMonth = 0; viewYear += 1 } else viewMonth += 1
-                            })
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                        listOf("Mon","Tue","Wed","Thu","Fri","Sat","Sun").forEach {
-                            Text(it, fontSize = 12.sp, color = Color(0xFFAAAAAA), modifier = Modifier.width(40.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    val leading = firstWeekday(viewMonth, viewYear)
-                    val totalDays = daysInMonth(viewMonth, viewYear)
-                    val rows = 6
-
-                    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-                        for (r in 0 until rows) {
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                for (c in 0..6) {
-                                    val dayNum = r * 7 + c - leading + 1
-                                    Box(modifier = Modifier.width(40.dp).height(40.dp), contentAlignment = Alignment.Center) {
-                                        if (dayNum in 1..totalDays) {
-                                            val isSel = dayNum == selectedDay && viewMonth == selectedMonth && viewYear == selectedYear
-                                            val isToday = dayNum == today.get(Calendar.DAY_OF_MONTH) && viewMonth == today.get(Calendar.MONTH) && viewYear == today.get(Calendar.YEAR)
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(36.dp)
-                                                    .clip(CircleShape)
-                                                    .background(if (isSel) purple else Color.Transparent)
-                                                    .clickable {
-                                                        selectedDay = dayNum
-                                                        selectedMonth = viewMonth
-                                                        selectedYear = viewYear
-                                                    },
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                Text(
-                                                    "$dayNum",
-                                                    fontSize = 15.sp,
-                                                    color = if (isSel) Color.White else if (isToday) purple else Color.Black,
-                                                    fontWeight = FontWeight.Bold
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(4.dp))
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    Column(modifier = Modifier.padding(horizontal = 20.dp).clip(RoundedCornerShape(16.dp)).background(Color.White)) {
-                        ScheduleRow("Time", "None", Icons.Default.DateRange)
-                        ScheduleRow("Reminder", "None", Icons.Default.Notifications)
-                        ScheduleRow("Repeat", "None", Icons.Default.Refresh)
-                    }
+                    dateOnlyContent()
                 } else {
                     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
