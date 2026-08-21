@@ -33,6 +33,8 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.ui.platform.LocalContext
+import java.util.Calendar
 
 @Composable
 fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String) -> Unit) {
@@ -43,7 +45,9 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String)
     var showTagPicker by remember { mutableStateOf(false) }
     var showNewTagInput by remember { mutableStateOf(false) }
     var newTagText by remember { mutableStateOf("") }
+    var pickedDateTime by remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
+    val context = LocalContext.current
 
     val categoryViewModel: CategoryViewModel = viewModel()
     val categories by categoryViewModel.categories.collectAsState()
@@ -54,9 +58,33 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String)
 
     fun submit() {
         if (title.isNotBlank()) {
-            onAdd(title, selectedTag, "No time", desc)
+            onAdd(title, selectedTag, pickedDateTime.ifBlank { "No time" }, desc)
             onDismiss()
         }
+    }
+
+    fun openDateTimePicker() {
+        val cal = Calendar.getInstance()
+        android.app.DatePickerDialog(
+            context,
+            { _, year, month, day ->
+                android.app.TimePickerDialog(
+                    context,
+                    { _, hour, minute ->
+                        val hh = String.format("%02d", hour)
+                        val mm = String.format("%02d", minute)
+                        val months = listOf("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+                        pickedDateTime = "${months[month]} $day, $hh:$mm"
+                    },
+                    cal.get(Calendar.HOUR_OF_DAY),
+                    cal.get(Calendar.MINUTE),
+                    true
+                ).show()
+            },
+            cal.get(Calendar.YEAR),
+            cal.get(Calendar.MONTH),
+            cal.get(Calendar.DAY_OF_MONTH)
+        ).show()
     }
 
     Dialog(
@@ -184,6 +212,18 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String)
                         }
                     }
 
+                    if (pickedDateTime.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(Color(0xFFEEE9FF))
+                                .padding(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
+                            Text(pickedDateTime, fontSize = 12.sp, color = purple)
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Row(
@@ -192,7 +232,13 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String)
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                            Icon(Icons.Default.DateRange, contentDescription = "Date", tint = Color(0xFF9A9A9A))
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable { openDateTimePicker() }
+                            ) {
+                                Icon(Icons.Default.DateRange, contentDescription = "Date", tint = if (pickedDateTime.isNotBlank()) purple else Color(0xFF9A9A9A))
+                            }
                             Icon(Icons.Default.Star, contentDescription = "Priority", tint = Color(0xFF9A9A9A))
                             Box(
                                 modifier = Modifier
