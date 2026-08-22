@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -35,7 +36,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String) -> Unit) {
+fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String, Int) -> Unit) {
     val purple = Color(0xFF6C5CE7)
     var title by remember { mutableStateOf("") }
     var desc by remember { mutableStateOf("") }
@@ -45,6 +46,8 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String)
     var newTagText by remember { mutableStateOf("") }
     var pickedDateTime by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
+    var selectedQuadrant by remember { mutableStateOf(0) }
+    var showQuadrantPicker by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
 
     val categoryViewModel: CategoryViewModel = viewModel()
@@ -56,7 +59,7 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String)
 
     fun submit() {
         if (title.isNotBlank()) {
-            onAdd(title, selectedTag, pickedDateTime.ifBlank { "No time" }, desc)
+            onAdd(title, selectedTag, pickedDateTime.ifBlank { "No time" }, desc, selectedQuadrant)
             onDismiss()
         }
     }
@@ -190,6 +193,41 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String)
                         }
                     }
 
+                    if (showQuadrantPicker) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        val quadrants = listOf(
+                            Triple(0, "Do First", Color(0xFFFF4D4D)),
+                            Triple(1, "Schedule", Color(0xFF4D8AFF)),
+                            Triple(2, "Delegate", Color(0xFFFFB300)),
+                            Triple(3, "Eliminate", Color(0xFF9A9A9A))
+                        )
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            for (row in 0..1) {
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    for (col in 0..1) {
+                                        val (qId, qLabel, qColor) = quadrants[row * 2 + col]
+                                        val sel = selectedQuadrant == qId
+                                        Box(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .clip(RoundedCornerShape(20.dp))
+                                                .background(if (sel) Color.Black else Color.White)
+                                                .then(if (!sel) Modifier else Modifier)
+                                                .clickable { selectedQuadrant = qId }
+                                                .padding(horizontal = 14.dp, vertical = 10.dp)
+                                        ) {
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(qColor))
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Text(qLabel, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = if (sel) Color.White else Color.Black)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     if (pickedDateTime.isNotBlank()) {
                         Spacer(modifier = Modifier.height(8.dp))
                         Box(
@@ -225,7 +263,13 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String)
                             ) {
                                 Icon(Icons.Default.Info, contentDescription = "Tag", tint = if (showTagPicker) purple else Color(0xFF9A9A9A))
                             }
-                            Icon(Icons.Default.MoreVert, contentDescription = "More", tint = Color(0xFF9A9A9A))
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable { showQuadrantPicker = !showQuadrantPicker; showTagPicker = false }
+                            ) {
+                                Icon(Icons.Default.MoreVert, contentDescription = "More", tint = if (showQuadrantPicker) purple else Color(0xFF9A9A9A))
+                            }
                         }
 
                         Box(

@@ -20,9 +20,9 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun addTask(title: String, tag: String, time: String, desc: String = "") {
+    fun addTask(title: String, tag: String, time: String, desc: String = "", quadrant: Int = 0) {
         viewModelScope.launch {
-            dao.insert(Task(title = title, tag = tag, time = time, desc = desc))
+            dao.insert(Task(title = title, tag = tag, time = time, desc = desc, quadrant = quadrant))
         }
     }
 
