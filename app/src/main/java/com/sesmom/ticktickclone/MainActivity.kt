@@ -171,10 +171,13 @@ fun App(){
      3 -> { // HABITS - 100% MOCKUP
       LazyColumn(Modifier.padding(pad).fillMaxSize().padding(horizontal=16.dp), verticalArrangement=Arrangement.spacedBy(12.dp)){
        item{
+        val habitViewModel: HabitViewModel = viewModel()
+        val habits by habitViewModel.habits.collectAsState()
+        val maxStreak = habits.maxOfOrNull{it.streakDays} ?: 0
         Spacer(Modifier.height(12.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.SpaceBetween, verticalAlignment=Alignment.CenterVertically){
          Column{ Text("Habits", fontSize=34.sp, fontWeight=FontWeight.Black); Text("Build streaks, not just tasks", fontSize=13.sp, color=Color(0xFF8A8A8A), modifier=Modifier.padding(top=4.dp)) }
-         Box(Modifier.clip(RoundedCornerShape(20.dp)).background(Color(0xFFFFF4E8)).border(1.dp, Color(0xFFFFE4C4), RoundedCornerShape(20.dp)).padding(horizontal=14.dp, vertical=8.dp)){ Row(verticalAlignment=Alignment.CenterVertically){ Text("🔥", fontSize=14.sp); Spacer(Modifier.width(6.dp)); Text("12 day streak", fontSize=12.sp, color=Color(0xFF8A4A2A), fontWeight=FontWeight.Bold) } }
+         Box(Modifier.clip(RoundedCornerShape(20.dp)).background(Color(0xFFFFF4E8)).border(1.dp, Color(0xFFFFE4C4), RoundedCornerShape(20.dp)).padding(horizontal=14.dp, vertical=8.dp)){ Row(verticalAlignment=Alignment.CenterVertically){ Text("🔥", fontSize=14.sp); Spacer(Modifier.width(6.dp)); Text("$maxStreak day streak", fontSize=12.sp, color=Color(0xFF8A4A2A), fontWeight=FontWeight.Bold) } }
         }
        }
        item{
@@ -206,11 +209,12 @@ fun App(){
         }
        }
        item{
-        HabitRow("📚","Read 30 pages","8 days", true)
-        Spacer(Modifier.height(8.dp))
-        HabitRow("🧘","Meditate","3 days", false)
-        Spacer(Modifier.height(8.dp))
-        HabitRow("💧","Drink 2L water","21 days", true)
+        val habitViewModel2: HabitViewModel = viewModel()
+        val habits2 by habitViewModel2.habits.collectAsState()
+        habits2.forEachIndexed{ idx, h ->
+         HabitRow(h, onToggle={ habitViewModel2.toggleCheckIn(it) })
+         if(idx < habits2.size-1) Spacer(Modifier.height(8.dp))
+        }
         Spacer(Modifier.height(100.dp))
        }
       }
@@ -236,16 +240,16 @@ fun MatrixCard(t:TaskM, onToggle:(Int)->Unit = {}){
  }
 }
 @Composable
-fun HabitRow(emoji:String, title:String, days:String, done:Boolean){
+fun HabitRow(h:Habit, onToggle:(Int)->Unit = {}){
  val purple = Color(0xFF6D5BFF)
  Card(shape=RoundedCornerShape(20.dp), colors=CardDefaults.cardColors(containerColor=Color.White), elevation=CardDefaults.cardElevation(1.dp)){
   Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment=Alignment.CenterVertically, horizontalArrangement=Arrangement.SpaceBetween){
    Row(verticalAlignment=Alignment.CenterVertically){
-    Box(Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFFF8F7FF)), contentAlignment=Alignment.Center){ Text(emoji, fontSize=18.sp) }
+    Box(Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFFF8F7FF)), contentAlignment=Alignment.Center){ Text(h.emoji, fontSize=18.sp) }
     Spacer(Modifier.width(12.dp))
-    Column{ Text(title, fontSize=15.sp, fontWeight=FontWeight.Medium); Row(modifier=Modifier.padding(top=2.dp), verticalAlignment=Alignment.CenterVertically){ Text("🔥", fontSize=11.sp); Spacer(Modifier.width(4.dp)); Text(days, fontSize=12.sp, color=Color(0xFFAAAAAA)) } }
+    Column{ Text(h.title, fontSize=15.sp, fontWeight=FontWeight.Medium); Row(modifier=Modifier.padding(top=2.dp), verticalAlignment=Alignment.CenterVertically){ Text("🔥", fontSize=11.sp); Spacer(Modifier.width(4.dp)); Text("\${h.streakDays} days", fontSize=12.sp, color=Color(0xFFAAAAAA)) } }
    }
-   Box(Modifier.size(36.dp).clip(CircleShape).background(if(done) purple else Color.White).border(1.dp, if(done) purple else Color(0xFFE0E0E0), CircleShape), contentAlignment=Alignment.Center){ Text("✓", color=if(done) Color.White else Color(0xFF8A8A8A), fontSize=14.sp, fontWeight=FontWeight.Bold) }
+   Box(Modifier.size(36.dp).clip(CircleShape).background(if(h.checkedToday) purple else Color.White).border(1.dp, if(h.checkedToday) purple else Color(0xFFE0E0E0), CircleShape).clickable{ onToggle(h.id) }, contentAlignment=Alignment.Center){ Text("✓", color=if(h.checkedToday) Color.White else Color(0xFF8A8A8A), fontSize=14.sp, fontWeight=FontWeight.Bold) }
   }
  }
 }

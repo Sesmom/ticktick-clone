@@ -9,10 +9,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Task::class, Category::class], version = 4, exportSchema = false)
+@Database(entities = [Task::class, Category::class, Habit::class], version = 5, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
     abstract fun categoryDao(): CategoryDao
+    abstract fun habitDao(): HabitDao
 
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null
@@ -42,6 +43,11 @@ abstract class AppDatabase : RoomDatabase() {
                             catDao.insert(Category(name = "#design", bgColorHex = 0xFFFFE4F0L, textColorHex = 0xFFCC4D8CL))
                             catDao.insert(Category(name = "#learning", bgColorHex = 0xFFFFF3CCL, textColorHex = 0xFFB8860BL))
                             catDao.insert(Category(name = "#personal", bgColorHex = 0xFFD9FFEEL, textColorHex = 0xFF2ECC71L))
+
+                            val habitDao = getInstance(context).habitDao()
+                            habitDao.insert(Habit(emoji = "📚", title = "Read 30 pages", streakDays = 8, checkedToday = true))
+                            habitDao.insert(Habit(emoji = "🧘", title = "Meditate", streakDays = 3, checkedToday = false))
+                            habitDao.insert(Habit(emoji = "💧", title = "Drink 2L water", streakDays = 21, checkedToday = true))
                         }
                     }
                 }).build()
