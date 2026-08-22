@@ -9,7 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Task::class, Category::class], version = 3, exportSchema = false)
+@Database(entities = [Task::class, Category::class], version = 4, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
     abstract fun categoryDao(): CategoryDao
@@ -29,12 +29,12 @@ abstract class AppDatabase : RoomDatabase() {
                         super.onCreate(db)
                         CoroutineScope(Dispatchers.IO).launch {
                             val dao = getInstance(context).taskDao()
-                            dao.insert(Task(title = "Finalize Q3 roadmap deck", tag = "#work", time = "09:00", overdue = true, desc = "Review milestones with the team and lock scope before Friday"))
-                            dao.insert(Task(title = "Submit expense report", tag = "#finance", time = "Yesterday", overdue = true, desc = "Attach receipts from the conference trip and submit for approval"))
-                            dao.insert(Task(title = "Morning review & standup notes", tag = "#work", time = "08:30", desc = "Go over yesterday's blockers and today's priorities with the team"))
-                            dao.insert(Task(title = "Design system audit - components", tag = "#design", time = "14:00", desc = "Check button, input, and card components for consistency"))
-                            dao.insert(Task(title = "Read 30 pages - Deep Work", tag = "#learning", time = "21:00", desc = "Continue the chapter on focus and deep work habits"))
-                            dao.insert(Task(title = "Grocery run & meal prep", tag = "#personal", time = "18:00", done = true, desc = "Pick up ingredients for the week and prep Sunday dinner"))
+                            dao.insert(Task(title = "Finalize Q3 roadmap deck", tag = "#work", time = "09:00", overdue = true, desc = "Review milestones with the team and lock scope before Friday", quadrant = 0))
+                            dao.insert(Task(title = "Submit expense report", tag = "#finance", time = "Yesterday", overdue = true, desc = "Attach receipts from the conference trip and submit for approval", quadrant = 1))
+                            dao.insert(Task(title = "Morning review & standup notes", tag = "#work", time = "08:30", desc = "Go over yesterday's blockers and today's priorities with the team", quadrant = 0))
+                            dao.insert(Task(title = "Design system audit - components", tag = "#design", time = "14:00", desc = "Check button, input, and card components for consistency", quadrant = 1))
+                            dao.insert(Task(title = "Read 30 pages - Deep Work", tag = "#learning", time = "21:00", desc = "Continue the chapter on focus and deep work habits", quadrant = 3))
+                            dao.insert(Task(title = "Grocery run & meal prep", tag = "#personal", time = "18:00", done = true, desc = "Pick up ingredients for the week and prep Sunday dinner", quadrant = 2))
 
                             val catDao = getInstance(context).categoryDao()
                             catDao.insert(Category(name = "#work", bgColorHex = 0xFFEEE9FFL, textColorHex = 0xFF6D5BFFL))

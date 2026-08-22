@@ -150,15 +150,19 @@ fun App(){
       LazyColumn(Modifier.padding(pad).fillMaxSize().padding(horizontal=12.dp), verticalArrangement=Arrangement.spacedBy(12.dp)){
        item{ Spacer(Modifier.height(12.dp)); Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.SpaceBetween, verticalAlignment=Alignment.CenterVertically){ Text("Matrix", fontSize=34.sp, fontWeight=FontWeight.Black); Box(Modifier.clip(RoundedCornerShape(20.dp)).background(Color(0xFF121212)).padding(horizontal=16.dp, vertical=8.dp)){ Text("Eisenhower", color=Color.White, fontSize=12.sp) } } }
        item{
+        val q0 = tasks.filter{it.quad==0}
+        val q1 = tasks.filter{it.quad==1}
         Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.spacedBy(12.dp)){
-         Card(Modifier.weight(1f), shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=Color(0xFFFFE0E0))){ Column(Modifier.padding(12.dp), verticalArrangement=Arrangement.spacedBy(10.dp)){ Row(verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(10.dp).clip(CircleShape).background(Color(0xFFFF4D4D))); Spacer(Modifier.width(8.dp)); Column{ Text("DO FIRST", fontWeight=FontWeight.Black, fontSize=13.sp); Text("Urgent & Important", fontSize=11.sp, color=Color(0xFF8A5A5A)) } }; MatrixCard("Finalize Q3 roadmap deck"); MatrixCard("Morning review & standup notes"); MatrixCard("Client call - Acme Inc") } }
-         Card(Modifier.weight(1f), shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=Color(0xFFDDEBFF))){ Column(Modifier.padding(12.dp), verticalArrangement=Arrangement.spacedBy(10.dp)){ Row(verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(10.dp).clip(CircleShape).background(Color(0xFF4D8AFF))); Spacer(Modifier.width(8.dp)); Column{ Text("SCHEDULE", fontWeight=FontWeight.Black, fontSize=13.sp); Text("Not Urgent • Important", fontSize=11.sp) } }; MatrixCard("Submit expense report"); MatrixCard("Design system audit - components") } }
+         Card(Modifier.weight(1f), shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=Color(0xFFFFE0E0))){ Column(Modifier.padding(12.dp), verticalArrangement=Arrangement.spacedBy(10.dp)){ Row(verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(10.dp).clip(CircleShape).background(Color(0xFFFF4D4D))); Spacer(Modifier.width(8.dp)); Column{ Text("DO FIRST", fontWeight=FontWeight.Black, fontSize=13.sp); Text("Urgent & Important", fontSize=11.sp, color=Color(0xFF8A5A5A)) } }; q0.forEach{ tk -> MatrixCard(tk, onToggle={ taskViewModel.toggleDoneById(it) }) } } }
+         Card(Modifier.weight(1f), shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=Color(0xFFDDEBFF))){ Column(Modifier.padding(12.dp), verticalArrangement=Arrangement.spacedBy(10.dp)){ Row(verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(10.dp).clip(CircleShape).background(Color(0xFF4D8AFF))); Spacer(Modifier.width(8.dp)); Column{ Text("SCHEDULE", fontWeight=FontWeight.Black, fontSize=13.sp); Text("Not Urgent • Important", fontSize=11.sp) } }; q1.forEach{ tk -> MatrixCard(tk, onToggle={ taskViewModel.toggleDoneById(it) }) } } }
         }
        }
        item{
+        val q2 = tasks.filter{it.quad==2}
+        val q3 = tasks.filter{it.quad==3}
         Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.spacedBy(12.dp)){
-         Card(Modifier.weight(1f), shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=Color(0xFFFFF3B8))){ Column(Modifier.padding(12.dp), verticalArrangement=Arrangement.spacedBy(10.dp)){ Row(verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(10.dp).clip(CircleShape).background(Color(0xFFFFB300))); Spacer(Modifier.width(8.dp)); Column{ Text("DELEGATE", fontWeight=FontWeight.Black, fontSize=13.sp); Text("Urgent • Not Important", fontSize=11.sp) } }; Card(shape=RoundedCornerShape(16.dp), colors=CardDefaults.cardColors(containerColor=Color.White)){ Row(Modifier.padding(12.dp), verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(20.dp).clip(CircleShape).background(purple), contentAlignment=Alignment.Center){ Text("✓", color=Color.White, fontSize=12.sp) }; Spacer(Modifier.width(8.dp)); Text("Grocery run & meal prep", fontSize=12.sp, color=Color(0xFF9A9A9A), textDecoration=TextDecoration.LineThrough) } }; Spacer(Modifier.height(120.dp)) } }
-         Card(Modifier.weight(1f), shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=Color(0xFFF0F0F0))){ Column(Modifier.padding(12.dp), verticalArrangement=Arrangement.spacedBy(10.dp)){ Row(verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(10.dp).clip(CircleShape).background(Color(0xFF9A9A9A))); Spacer(Modifier.width(8.dp)); Column{ Text("ELIMINATE", fontWeight=FontWeight.Black, fontSize=13.sp); Text("Neither", fontSize=11.sp) } }; MatrixCard("Read 30 pages - Deep Work"); Spacer(Modifier.height(120.dp)) } }
+         Card(Modifier.weight(1f), shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=Color(0xFFFFF3B8))){ Column(Modifier.padding(12.dp), verticalArrangement=Arrangement.spacedBy(10.dp)){ Row(verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(10.dp).clip(CircleShape).background(Color(0xFFFFB300))); Spacer(Modifier.width(8.dp)); Column{ Text("DELEGATE", fontWeight=FontWeight.Black, fontSize=13.sp); Text("Urgent • Not Important", fontSize=11.sp) } }; q2.forEach{ tk -> MatrixCard(tk, onToggle={ taskViewModel.toggleDoneById(it) }) }; Spacer(Modifier.height(60.dp)) } }
+         Card(Modifier.weight(1f), shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=Color(0xFFF0F0F0))){ Column(Modifier.padding(12.dp), verticalArrangement=Arrangement.spacedBy(10.dp)){ Row(verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(10.dp).clip(CircleShape).background(Color(0xFF9A9A9A))); Spacer(Modifier.width(8.dp)); Column{ Text("ELIMINATE", fontWeight=FontWeight.Black, fontSize=13.sp); Text("Neither", fontSize=11.sp) } }; q3.forEach{ tk -> MatrixCard(tk, onToggle={ taskViewModel.toggleDoneById(it) }) }; Spacer(Modifier.height(60.dp)) } }
         }
        }
        item{ Card(Modifier.fillMaxWidth(), shape=RoundedCornerShape(20.dp), colors=CardDefaults.cardColors(containerColor=Color(0xFF121212))){ Row(Modifier.padding(16.dp), verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(36.dp).clip(CircleShape).background(Color(0xFF2A2A2A)), contentAlignment=Alignment.Center){ Text("i", color=Color.White, fontWeight=FontWeight.Bold) }; Spacer(Modifier.width(12.dp)); Text("Pro tip: Focus 60% of time in Q2 — that's where leverage lives.", color=Color.White.copy(0.8f), fontSize=13.sp) } }; Spacer(Modifier.height(100.dp)) }
@@ -222,12 +226,12 @@ fun App(){
 }
 
 @Composable
-fun MatrixCard(title:String){
+fun MatrixCard(t:TaskM, onToggle:(Int)->Unit = {}){
  Card(shape=RoundedCornerShape(16.dp), colors=CardDefaults.cardColors(containerColor=Color.White), elevation=CardDefaults.cardElevation(1.dp)){
   Row(Modifier.padding(12.dp), verticalAlignment=Alignment.CenterVertically){
-   Box(Modifier.size(20.dp).clip(CircleShape).border(1.5.dp, Color(0xFFE0E0E0), CircleShape).background(Color.White))
+   Box(Modifier.size(20.dp).clip(CircleShape).border(1.5.dp, if(t.done) Color.Transparent else Color(0xFFE0E0E0), CircleShape).background(if(t.done) Color(0xFF6D5BFF) else Color.White).clickable{ onToggle(t.id) }, contentAlignment=Alignment.Center){ if(t.done) Text("✓", color=Color.White, fontSize=10.sp) }
    Spacer(Modifier.width(8.dp))
-   Text(title, fontSize=12.sp, fontWeight=FontWeight.Medium, lineHeight=14.sp)
+   Text(t.title, fontSize=12.sp, fontWeight=FontWeight.Medium, lineHeight=14.sp, color=if(t.done) Color(0xFF9A9A9A) else Color.Black, textDecoration=if(t.done) TextDecoration.LineThrough else null)
   }
  }
 }
