@@ -2,6 +2,7 @@ package com.sesmom.ticktickclone
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -36,7 +37,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String, Int) -> Unit) {
+fun AddTaskDialog(onDismiss: () -> Unit, initialQuadrant: Int = 0, onAdd: (String, String, String, String, Int) -> Unit) {
     val purple = Color(0xFF6C5CE7)
     var title by remember { mutableStateOf("") }
     var desc by remember { mutableStateOf("") }
@@ -46,7 +47,7 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String,
     var newTagText by remember { mutableStateOf("") }
     var pickedDateTime by remember { mutableStateOf("") }
     var showDatePicker by remember { mutableStateOf(false) }
-    var selectedQuadrant by remember { mutableStateOf(0) }
+    var selectedQuadrant by remember { mutableStateOf(initialQuadrant) }
     var showQuadrantPicker by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
 
@@ -195,26 +196,38 @@ fun AddTaskDialog(onDismiss: () -> Unit, onAdd: (String, String, String, String,
 
                     if (showQuadrantPicker) {
                         Spacer(modifier = Modifier.height(8.dp))
+                        val quadrantNames = listOf("Do First", "Schedule", "Delegate", "Eliminate")
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("QUADRANT", fontSize = 11.sp, color = Color(0xFF9A9A9A), letterSpacing = 1.sp, fontWeight = FontWeight.Bold)
+                            Text("${quadrantNames[selectedQuadrant]} selected", fontSize = 12.sp, color = Color(0xFF9A9A9A))
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
                         val quadrants = listOf(
                             Triple(0, "Do First", Color(0xFFFF4D4D)),
                             Triple(1, "Schedule", Color(0xFF4D8AFF)),
                             Triple(2, "Delegate", Color(0xFFFFB300)),
                             Triple(3, "Eliminate", Color(0xFF9A9A9A))
                         )
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             for (row in 0..1) {
-                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                                     for (col in 0..1) {
                                         val (qId, qLabel, qColor) = quadrants[row * 2 + col]
                                         val sel = selectedQuadrant == qId
                                         Box(
                                             modifier = Modifier
                                                 .weight(1f)
-                                                .clip(RoundedCornerShape(20.dp))
+                                                .clip(RoundedCornerShape(24.dp))
                                                 .background(if (sel) Color.Black else Color.White)
-                                                .then(if (!sel) Modifier else Modifier)
+                                                .then(
+                                                    if (!sel) Modifier.border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(24.dp))
+                                                    else Modifier
+                                                )
                                                 .clickable { selectedQuadrant = qId }
-                                                .padding(horizontal = 14.dp, vertical = 10.dp)
+                                                .padding(horizontal = 16.dp, vertical = 16.dp)
                                         ) {
                                             Row(verticalAlignment = Alignment.CenterVertically) {
                                                 Box(modifier = Modifier.size(8.dp).clip(CircleShape).background(qColor))
