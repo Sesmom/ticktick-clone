@@ -247,7 +247,7 @@ fun HabitRow(h:Habit, onToggle:(Int)->Unit = {}){
    Row(verticalAlignment=Alignment.CenterVertically){
     Box(Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFFF8F7FF)), contentAlignment=Alignment.Center){ Text(h.emoji, fontSize=18.sp) }
     Spacer(Modifier.width(12.dp))
-    Column{ Text(h.title, fontSize=15.sp, fontWeight=FontWeight.Medium); Row(modifier=Modifier.padding(top=2.dp), verticalAlignment=Alignment.CenterVertically){ Text("🔥", fontSize=11.sp); Spacer(Modifier.width(4.dp)); Text("\${h.streakDays} days", fontSize=12.sp, color=Color(0xFFAAAAAA)) } }
+    Column{ Text(h.title, fontSize=15.sp, fontWeight=FontWeight.Medium); Row(modifier=Modifier.padding(top=2.dp), verticalAlignment=Alignment.CenterVertically){ Text("🔥", fontSize=11.sp); Spacer(Modifier.width(4.dp)); Text("${h.streakDays} days", fontSize=12.sp, color=Color(0xFFAAAAAA)) } }
    }
    Box(Modifier.size(36.dp).clip(CircleShape).background(if(h.checkedToday) purple else Color.White).border(1.dp, if(h.checkedToday) purple else Color(0xFFE0E0E0), CircleShape).clickable{ onToggle(h.id) }, contentAlignment=Alignment.Center){ Text("✓", color=if(h.checkedToday) Color.White else Color(0xFF8A8A8A), fontSize=14.sp, fontWeight=FontWeight.Bold) }
   }
