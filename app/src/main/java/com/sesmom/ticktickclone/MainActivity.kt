@@ -40,6 +40,7 @@ fun App(){
  val taskViewModel: TaskViewModel = viewModel()
  var showAddDialog by remember { mutableStateOf(false) }
  var addDialogQuadrant by remember { mutableStateOf(0) }
+ var editingTask by remember { mutableStateOf<Task?>(null) }
  val dbTasks by taskViewModel.tasks.collectAsState()
  val dbSubtasks by taskViewModel.subtasks.collectAsState()
  val tasks = dbTasks.map { dbTask ->
@@ -104,7 +105,7 @@ fun App(){
         Spacer(Modifier.height(10.dp))
         Card(shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=Color.White), elevation=CardDefaults.cardElevation(3.dp)){
          Column(Modifier.padding(16.dp), verticalArrangement=Arrangement.spacedBy(22.dp)){
-          todayTasks.forEach{ tt -> TodayRow(tt, onToggle={ taskViewModel.toggleDoneById(it) }, onSubToggle={ taskViewModel.toggleSubtask(it) }) }
+          todayTasks.forEach{ tt -> TodayRow(tt, onToggle={ taskViewModel.toggleDoneById(it) }, onSubToggle={ taskViewModel.toggleSubtask(it) }, onEdit={ id -> editingTask = dbTasks.find{d->d.id==id}; addDialogQuadrant = dbTasks.find{d->d.id==id}?.quadrant ?: 0; showAddDialog=true }) }
          }
         }
         Spacer(Modifier.height(100.dp))
@@ -142,7 +143,7 @@ fun App(){
         Row(verticalAlignment=Alignment.CenterVertically){ Text("🕒", fontSize=12.sp); Spacer(Modifier.width(6.dp)); Text("JULY $selectedDay • 3 TASKS", fontSize=12.sp, color=Color(0xFF8A8A8A), fontWeight=FontWeight.Bold) }
         Spacer(Modifier.height(12.dp))
         Card(shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=Color.White), elevation=CardDefaults.cardElevation(3.dp)){
-         Column(Modifier.padding(16.dp), verticalArrangement=Arrangement.spacedBy(24.dp)){ TodayRow(tasks[2], onToggle={ taskViewModel.toggleDoneById(it) }, onSubToggle={ taskViewModel.toggleSubtask(it) }); TodayRow(tasks[3], onToggle={ taskViewModel.toggleDoneById(it) }, onSubToggle={ taskViewModel.toggleSubtask(it) }) }
+         Column(Modifier.padding(16.dp), verticalArrangement=Arrangement.spacedBy(24.dp)){ TodayRow(tasks[2], onToggle={ taskViewModel.toggleDoneById(it) }, onSubToggle={ taskViewModel.toggleSubtask(it) }, onEdit={ id -> editingTask = dbTasks.find{d->d.id==id}; addDialogQuadrant = dbTasks.find{d->d.id==id}?.quadrant ?: 0; showAddDialog=true }); TodayRow(tasks[3], onToggle={ taskViewModel.toggleDoneById(it) }, onSubToggle={ taskViewModel.toggleSubtask(it) }, onEdit={ id -> editingTask = dbTasks.find{d->d.id==id}; addDialogQuadrant = dbTasks.find{d->d.id==id}?.quadrant ?: 0; showAddDialog=true }) }
         }
         Spacer(Modifier.height(100.dp))
        }
@@ -227,7 +228,7 @@ fun App(){
   }
  }
  if(showAddDialog){
-  AddTaskDialog(onDismiss={ showAddDialog=false }, initialQuadrant=addDialogQuadrant, onAdd={ title,tag,time,desc,quad -> taskViewModel.addTask(title,tag,time,desc,quad) })
+  AddTaskDialog(onDismiss={ showAddDialog=false; editingTask=null }, initialQuadrant=addDialogQuadrant, editTask=editingTask, onAdd={ title,tag,time,desc,quad,id -> if(id==-1) taskViewModel.addTask(title,tag,time,desc,quad) else taskViewModel.updateTask(id,title,tag,time,desc,quad) }, onDelete={ id -> taskViewModel.deleteTask(id) })
  }
 }
 
@@ -268,12 +269,12 @@ fun OverdueRow(t:TaskM, onToggle:(Int)->Unit = {}){
  }
 }
 @Composable
-fun TodayRow(t:TaskM, onToggle:(Int)->Unit = {}, onSubToggle:(Int)->Unit = {}){
+fun TodayRow(t:TaskM, onToggle:(Int)->Unit = {}, onSubToggle:(Int)->Unit = {}, onEdit:(Int)->Unit = {}){
  Column{
   Row(Modifier.fillMaxWidth(), verticalAlignment=Alignment.Top){
    Box(Modifier.size(28.dp).clip(CircleShape).border(2.dp, Color(0xFFE0E0E0), CircleShape).background(if(t.done) Color(0xFF6D5BFF) else Color.White).clickable{ onToggle(t.id) })
    Spacer(Modifier.width(12.dp))
-   Column(Modifier.weight(1f)){
+   Column(Modifier.weight(1f).clickable{ onEdit(t.id) }){
     Row(verticalAlignment=Alignment.CenterVertically){ Text(t.title, fontWeight=FontWeight.Medium, fontSize=14.sp, color=if(t.done) Color(0xFFB0B0B0) else Color.Black, textDecoration=if(t.done) TextDecoration.LineThrough else null, modifier=Modifier.weight(1f, false)); Spacer(Modifier.width(8.dp)); Box(Modifier.clip(RoundedCornerShape(8.dp)).background(t.tagColor).padding(horizontal=8.dp, vertical=4.dp)){ Text(t.tag, fontSize=11.sp, color=t.tagText) } }
     if(t.desc.isNotEmpty()){ Spacer(Modifier.height(4.dp)); Text(t.desc, fontSize=12.sp, color=Color(0xFF9A9A9A), maxLines=1, overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis) }
     Spacer(Modifier.height(6.dp)); Row(verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(8.dp).clip(CircleShape).background(if(t.pri==0) Color(0xFFFF4D4D) else Color(0xFFFFC107))); Spacer(Modifier.width(8.dp)); Text(t.time, fontSize=12.sp, color=Color(0xFF8A8A8A)); if(t.subs.isNotEmpty()){ Spacer(Modifier.width(12.dp)); Text("${t.subs.count{it.done}}/${t.subs.size}", fontSize=12.sp, color=Color(0xFF8A8A8A)) } }

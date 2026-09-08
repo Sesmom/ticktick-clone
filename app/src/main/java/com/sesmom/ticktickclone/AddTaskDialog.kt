@@ -10,6 +10,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
@@ -37,17 +38,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun AddTaskDialog(onDismiss: () -> Unit, initialQuadrant: Int = 0, onAdd: (String, String, String, String, Int) -> Unit) {
+fun AddTaskDialog(onDismiss: () -> Unit, initialQuadrant: Int = 0, editTask: Task? = null, onAdd: (String, String, String, String, Int, Int) -> Unit, onDelete: (Int) -> Unit = {}) {
     val purple = Color(0xFF6C5CE7)
-    var title by remember { mutableStateOf("") }
-    var desc by remember { mutableStateOf("") }
-    var selectedTag by remember { mutableStateOf("#work") }
+    var title by remember { mutableStateOf(editTask?.title ?: "") }
+    var desc by remember { mutableStateOf(editTask?.desc ?: "") }
+    var selectedTag by remember { mutableStateOf(editTask?.tag ?: "#work") }
     var showTagPicker by remember { mutableStateOf(false) }
     var showNewTagInput by remember { mutableStateOf(false) }
     var newTagText by remember { mutableStateOf("") }
-    var pickedDateTime by remember { mutableStateOf("") }
+    var pickedDateTime by remember { mutableStateOf(if(editTask?.time !in listOf(null, "No time")) editTask?.time ?: "" else "") }
     var showDatePicker by remember { mutableStateOf(false) }
-    var selectedQuadrant by remember { mutableStateOf(initialQuadrant) }
+    var selectedQuadrant by remember { mutableStateOf(editTask?.quadrant ?: initialQuadrant) }
     var showQuadrantPicker by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
 
@@ -60,7 +61,7 @@ fun AddTaskDialog(onDismiss: () -> Unit, initialQuadrant: Int = 0, onAdd: (Strin
 
     fun submit() {
         if (title.isNotBlank()) {
-            onAdd(title, selectedTag, pickedDateTime.ifBlank { "No time" }, desc, selectedQuadrant)
+            onAdd(title, selectedTag, pickedDateTime.ifBlank { "No time" }, desc, selectedQuadrant, editTask?.id ?: -1)
             onDismiss()
         }
     }
@@ -282,6 +283,17 @@ fun AddTaskDialog(onDismiss: () -> Unit, initialQuadrant: Int = 0, onAdd: (Strin
                                     .clickable { showQuadrantPicker = !showQuadrantPicker; showTagPicker = false }
                             ) {
                                 Icon(Icons.Default.MoreVert, contentDescription = "More", tint = if (showQuadrantPicker) purple else Color(0xFF9A9A9A))
+                            }
+                            if (editTask != null) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "Delete task",
+                                    tint = Color(0xFFFF4D4D),
+                                    modifier = Modifier.clickable {
+                                        onDelete(editTask.id)
+                                        onDismiss()
+                                    }
+                                )
                             }
                         }
 

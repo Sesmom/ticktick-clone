@@ -49,4 +49,18 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
             subtaskDao.update(sub.copy(done = !sub.done))
         }
     }
+
+    fun deleteTask(id: Int) {
+        viewModelScope.launch {
+            val task = tasks.value.find { it.id == id } ?: return@launch
+            dao.delete(task)
+        }
+    }
+
+    fun updateTask(id: Int, title: String, tag: String, time: String, desc: String, quadrant: Int) {
+        viewModelScope.launch {
+            val task = tasks.value.find { it.id == id } ?: return@launch
+            dao.update(task.copy(title = title, tag = tag, time = time, desc = desc, quadrant = quadrant))
+        }
+    }
 }
