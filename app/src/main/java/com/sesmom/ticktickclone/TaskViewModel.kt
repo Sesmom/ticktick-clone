@@ -10,8 +10,12 @@ import kotlinx.coroutines.launch
 
 class TaskViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getInstance(application).taskDao()
+    private val subtaskDao = AppDatabase.getInstance(application).subtaskDao()
 
     val tasks: StateFlow<List<Task>> = dao.getAll()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val subtasks: StateFlow<List<Subtask>> = subtaskDao.getAll()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun toggleDone(task: Task) {
@@ -30,6 +34,19 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             val task = tasks.value.find { it.id == id } ?: return@launch
             dao.update(task.copy(done = !task.done))
+        }
+    }
+
+    fun addSubtask(taskId: Int, title: String) {
+        viewModelScope.launch {
+            subtaskDao.insert(Subtask(taskId = taskId, title = title))
+        }
+    }
+
+    fun toggleSubtask(id: Int) {
+        viewModelScope.launch {
+            val sub = subtasks.value.find { it.id == id } ?: return@launch
+            subtaskDao.update(sub.copy(done = !sub.done))
         }
     }
 }

@@ -30,7 +30,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 
-data class Sub(val title:String, val done:Boolean)
+data class Sub(val id:Int, val title:String, val done:Boolean)
 data class TaskM(val id:Int, val title:String, val tag:String, val tagColor:Color, val tagText:Color, val time:String, val pri:Int, val done:Boolean=false, val subs:List<Sub> = emptyList(), val quad:Int=0, val desc:String="")
 
 @Composable
@@ -41,8 +41,9 @@ fun App(){
  var showAddDialog by remember { mutableStateOf(false) }
  var addDialogQuadrant by remember { mutableStateOf(0) }
  val dbTasks by taskViewModel.tasks.collectAsState()
- val tasks = dbTasks.mapIndexed { idx, dbTask ->
-  val subs = if(idx==2) listOf(Sub("Update Figma handoff",true), Sub("Prep talking points",false)) else emptyList()
+ val dbSubtasks by taskViewModel.subtasks.collectAsState()
+ val tasks = dbTasks.map { dbTask ->
+  val subs = dbSubtasks.filter{ it.taskId == dbTask.id }.map{ Sub(it.id, it.title, it.done) }
   dbTask.toTaskM().copy(subs = subs)
  }
  var selectedDay by remember { mutableStateOf(15) }
@@ -103,7 +104,7 @@ fun App(){
         Spacer(Modifier.height(10.dp))
         Card(shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=Color.White), elevation=CardDefaults.cardElevation(3.dp)){
          Column(Modifier.padding(16.dp), verticalArrangement=Arrangement.spacedBy(22.dp)){
-          todayTasks.forEach{ tt -> TodayRow(tt, onToggle={ taskViewModel.toggleDoneById(it) }) }
+          todayTasks.forEach{ tt -> TodayRow(tt, onToggle={ taskViewModel.toggleDoneById(it) }, onSubToggle={ taskViewModel.toggleSubtask(it) }) }
          }
         }
         Spacer(Modifier.height(100.dp))
@@ -141,7 +142,7 @@ fun App(){
         Row(verticalAlignment=Alignment.CenterVertically){ Text("🕒", fontSize=12.sp); Spacer(Modifier.width(6.dp)); Text("JULY $selectedDay • 3 TASKS", fontSize=12.sp, color=Color(0xFF8A8A8A), fontWeight=FontWeight.Bold) }
         Spacer(Modifier.height(12.dp))
         Card(shape=RoundedCornerShape(24.dp), colors=CardDefaults.cardColors(containerColor=Color.White), elevation=CardDefaults.cardElevation(3.dp)){
-         Column(Modifier.padding(16.dp), verticalArrangement=Arrangement.spacedBy(24.dp)){ TodayRow(tasks[2], onToggle={ taskViewModel.toggleDoneById(it) }); TodayRow(tasks[3], onToggle={ taskViewModel.toggleDoneById(it) }) }
+         Column(Modifier.padding(16.dp), verticalArrangement=Arrangement.spacedBy(24.dp)){ TodayRow(tasks[2], onToggle={ taskViewModel.toggleDoneById(it) }, onSubToggle={ taskViewModel.toggleSubtask(it) }); TodayRow(tasks[3], onToggle={ taskViewModel.toggleDoneById(it) }, onSubToggle={ taskViewModel.toggleSubtask(it) }) }
         }
         Spacer(Modifier.height(100.dp))
        }
@@ -267,7 +268,7 @@ fun OverdueRow(t:TaskM, onToggle:(Int)->Unit = {}){
  }
 }
 @Composable
-fun TodayRow(t:TaskM, onToggle:(Int)->Unit = {}){
+fun TodayRow(t:TaskM, onToggle:(Int)->Unit = {}, onSubToggle:(Int)->Unit = {}){
  Column{
   Row(Modifier.fillMaxWidth(), verticalAlignment=Alignment.Top){
    Box(Modifier.size(28.dp).clip(CircleShape).border(2.dp, Color(0xFFE0E0E0), CircleShape).background(if(t.done) Color(0xFF6D5BFF) else Color.White).clickable{ onToggle(t.id) })
@@ -277,7 +278,7 @@ fun TodayRow(t:TaskM, onToggle:(Int)->Unit = {}){
     if(t.desc.isNotEmpty()){ Spacer(Modifier.height(4.dp)); Text(t.desc, fontSize=12.sp, color=Color(0xFF9A9A9A), maxLines=1, overflow=androidx.compose.ui.text.style.TextOverflow.Ellipsis) }
     Spacer(Modifier.height(6.dp)); Row(verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(8.dp).clip(CircleShape).background(if(t.pri==0) Color(0xFFFF4D4D) else Color(0xFFFFC107))); Spacer(Modifier.width(8.dp)); Text(t.time, fontSize=12.sp, color=Color(0xFF8A8A8A)); if(t.subs.isNotEmpty()){ Spacer(Modifier.width(12.dp)); Text("${t.subs.count{it.done}}/${t.subs.size}", fontSize=12.sp, color=Color(0xFF8A8A8A)) } }
     if(t.subs.isNotEmpty()){
-     Spacer(Modifier.height(14.dp)); Row{ Box(Modifier.width(2.dp).height(56.dp).background(Color(0xFFF0F0F0))); Spacer(Modifier.width(14.dp)); Column(verticalArrangement=Arrangement.spacedBy(12.dp)){ t.subs.forEach{ s-> Row(verticalAlignment=Alignment.CenterVertically){ Box(Modifier.size(22.dp).clip(CircleShape).background(if(s.done) Color(0xFFEDE8FF) else Color.White).border(1.5.dp, if(s.done) Color(0xFF6D5BFF) else Color(0xFFE0E0E0), CircleShape), contentAlignment=Alignment.Center){ if(s.done) Text("✓", fontSize=10.sp, color=Color(0xFF6D5BFF)) }; Spacer(Modifier.width(8.dp)); Text(s.title, fontSize=13.sp, color=if(s.done) Color(0xFFA0A0A0) else Color(0xFF505050), textDecoration=if(s.done) TextDecoration.LineThrough else null) } } } }
+     Spacer(Modifier.height(14.dp)); Row{ Box(Modifier.width(2.dp).height(56.dp).background(Color(0xFFF0F0F0))); Spacer(Modifier.width(14.dp)); Column(verticalArrangement=Arrangement.spacedBy(12.dp)){ t.subs.forEach{ s-> Row(verticalAlignment=Alignment.CenterVertically, modifier=Modifier.clickable{ onSubToggle(s.id) }){ Box(Modifier.size(22.dp).clip(CircleShape).background(if(s.done) Color(0xFFEDE8FF) else Color.White).border(1.5.dp, if(s.done) Color(0xFF6D5BFF) else Color(0xFFE0E0E0), CircleShape), contentAlignment=Alignment.Center){ if(s.done) Text("✓", fontSize=10.sp, color=Color(0xFF6D5BFF)) }; Spacer(Modifier.width(8.dp)); Text(s.title, fontSize=13.sp, color=if(s.done) Color(0xFFA0A0A0) else Color(0xFF505050), textDecoration=if(s.done) TextDecoration.LineThrough else null) } } } }
     }
    }
   }

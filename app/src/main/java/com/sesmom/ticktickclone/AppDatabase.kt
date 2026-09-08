@@ -9,11 +9,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Task::class, Category::class, Habit::class], version = 5, exportSchema = false)
+@Database(entities = [Task::class, Category::class, Habit::class, Subtask::class], version = 6, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun taskDao(): TaskDao
     abstract fun categoryDao(): CategoryDao
     abstract fun habitDao(): HabitDao
+    abstract fun subtaskDao(): SubtaskDao
 
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null
@@ -48,6 +49,10 @@ abstract class AppDatabase : RoomDatabase() {
                             habitDao.insert(Habit(emoji = "📚", title = "Read 30 pages", streakDays = 8, checkedToday = true))
                             habitDao.insert(Habit(emoji = "🧘", title = "Meditate", streakDays = 3, checkedToday = false))
                             habitDao.insert(Habit(emoji = "💧", title = "Drink 2L water", streakDays = 21, checkedToday = true))
+
+                            val subtaskDao = getInstance(context).subtaskDao()
+                            subtaskDao.insert(Subtask(taskId = 3, title = "Update Figma handoff", done = true))
+                            subtaskDao.insert(Subtask(taskId = 3, title = "Prep talking points", done = false))
                         }
                     }
                 }).build()
